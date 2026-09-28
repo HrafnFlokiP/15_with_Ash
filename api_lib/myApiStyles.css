@@ -1,0 +1,52 @@
+/* CSS der hører til dit API — fx .show og #toast */
+body, * {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+#toast{
+    width:20rem;
+    height:8rem;
+    display:grid;
+    place-items:center;
+    font-size:1.1rem;
+    color:darkslategray;
+    position:fixed;
+    top:-12rem;
+    right:2rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+    transition: top 0.5s ease-in-out;
+}
+
+#toast.toastShow{
+    top:2rem;
+}
+
+#toast.toastShow.notify{
+    background-color: #f1f1f1;
+}
+#toast.toastShow.warning{
+    background-color:lightpink;
+}
+
+.card{
+    height:100%;
+    width:100%;
+}
+
+.card img{
+    width:100%;
+}
+
+.card h2{
+    font-size:1rem;
+    font-weight:bold;
+    margin:0;
+}
+
+.card p{
+    margin:0;
+    font-size:1rem;
+}
