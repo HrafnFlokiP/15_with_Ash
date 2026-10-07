@@ -1,0 +1,59 @@
+/* Whimsical-agtigt tema til Mermaid-flowcharts.
+   Kanon: ~/.cursor/skills/whimsical-flowcharts/
+   Brug: <div class="flowchart"> … mermaid … </div> + flowchart.js */
+
+.flowchart-canvas {
+  background: #f3f5f7;
+  background-image: radial-gradient(#d5dde4 1px, transparent 1px);
+  background-size: 18px 18px;
+  border-radius: 16px;
+  padding: 1.35rem 1.15rem 1.1rem;
+  margin: 0.5rem 0 0;
+  overflow: hidden;
+}
+.flowchart-title {
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: #5c6b76;
+  margin: 0 0 0.85rem 0.35rem;
+}
+.flowchart {
+  margin: 0;
+}
+.flowchart svg,
+.flowchart-canvas svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+.flowchart .titleText,
+.flowchart .flowchartTitleText {
+  font-family: Inter, system-ui, sans-serif !important;
+  font-size: 20px !important;
+  fill: #44515c !important;
+}
+.flowchart .nodeLabel,
+.flowchart .edgeLabel,
+.flowchart .label {
+  font-family: Inter, system-ui, sans-serif !important;
+  font-size: 13px !important;
+  color: #44515c !important;
+}
+.flowchart .edgeLabel {
+  background-color: #f3f5f7 !important;
+  color: #6a7d8c !important;
+  font-size: 12px !important;
+}
+.flowchart .cluster rect {
+  fill: none !important;
+  stroke: none !important;
+}
+.flowchart .cluster span {
+  display: none;
+}
+
+@media print {
+  .flowchart-canvas, .flowchart { break-inside: avoid; }
+}

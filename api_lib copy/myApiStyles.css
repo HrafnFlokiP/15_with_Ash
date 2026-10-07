@@ -1,0 +1,88 @@
+/* CSS der hører til dit API — fx .show og #toast */
+body, * {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+#toast{
+    width:20rem;
+    height:8rem;
+    display:grid;
+    place-items:center;
+    font-size:1.1rem;
+    color:darkslategray;
+    position:fixed;
+    top:-12rem;
+    right:2rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+    transition: top 0.5s ease-in-out;
+}
+
+#toast.toastShow{
+    top:2rem;
+}
+
+#toast.toastShow.notify{
+    background-color: #f1f1f1;
+}
+#toast.toastShow.warning{
+    background-color:lightpink;
+}
+
+.card{
+    height:100%;
+    width:100%;
+    position: relative;
+}
+
+.card-delete {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.7rem;
+    font-size: 1.4rem;
+    line-height: 1;
+    opacity: 0.35;
+    cursor: pointer;
+}
+
+.card-delete:hover {
+    opacity: 1;
+}
+
+.card img{
+    width:100%;
+}
+
+.card h2{
+    font-size:1rem;
+    font-weight:bold;
+    margin:0;
+}
+
+.card p{
+    margin:0;
+    font-size:1rem;
+}
+
+.timer {
+    position: fixed;
+    width: 8rem;
+    height: 8rem;
+    display: grid;
+    place-items: center;
+    font-size: 3rem;
+    color: whitesmoke;
+    text-shadow: 4px 4px 8px black;
+    background-color: whitesmoke;
+    background-size: cover;
+    background-position: center;
+    border-radius: 1rem;
+    z-index: 2;
+}
+
+.timer.top-left { top: 2rem; left: 2rem; }
+.timer.top-right { top: 2rem; right: 2rem; }
+.timer.bottom-left { bottom: 2rem; left: 2rem; }
+.timer.bottom-right { bottom: 2rem; right: 2rem; }
