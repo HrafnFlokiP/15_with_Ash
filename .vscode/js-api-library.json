@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "apis": [
+    {
+      "id": "mvf0k0jvgja6jb",
+      "name": ".page",
+      "type": "css",
+      "code": ".page {\r\n    width: 100vw;\r\n    height: 100vh;\r\n    overflow: hidden;\r\n    /* grid layout */\r\n    display: grid;\r\n    place-items: center;\r\n    position: fixed;\r\n    left: 0;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792399789003,
+      "updatedAt": 1792399884345
+    },
+    {
+      "id": "mvf0lntjly708s",
+      "name": "setup",
+      "type": "js",
+      "code": "function setup(){\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792399865815,
+      "updatedAt": 1792400773040
+    }
+  ]
+}
