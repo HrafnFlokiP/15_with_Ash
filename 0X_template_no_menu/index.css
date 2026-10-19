@@ -26,3 +26,7 @@ body,
     display: flex;
     gap: 1rem;
 }
+
+.page h1 {
+    font-family: "Cabin Sketch";
+}
