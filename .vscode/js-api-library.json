@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "apis": [
+    {
+      "id": "mvf1jo684229yg",
+      "name": "setup",
+      "type": "js",
+      "code": "function setup() {\r\n    currentPage = '#page1';\r\n\r\n    new SketchButton('myCanvas', 'Start!', 'lightblue', () => {\r\n        shiftPage('#page2');\r\n    }, 100, 50, 150, 90);\r\n    new SketchButton('myCanvas', 'Options', 'lightblue', () => {\r\n        shiftPage('#page3');\r\n    }, 100, 180, 250, 110);\r\n\r\n    new SketchButton('myCanvas2', 'Go Back!', 'lightgreen', () => {\r\n        shiftPage('#page1');\r\n    }, 80, 50, 150, 90);\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792401452576,
+      "updatedAt": 1792489861933
+    },
+    {
+      "id": "mvf2u4n2dt1xin",
+      "name": ".page",
+      "type": "css",
+      "code": ".page {\r\n    width: 100vw;\r\n    height: 100vh;\r\n    overflow: hidden;\r\n    /*visibility: hidden;\r\n     grid layout */\r\n    display: grid;\r\n    place-items: center;\r\n    position: absolute;\r\n    left: 0;\r\n    transform: translateX(-100%);\r\n    transition: transform 1s ease-in-out;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792403620094,
+      "updatedAt": 1792489950662
+    },
+    {
+      "id": "mvf2u4nobs4m0s",
+      "name": ".page.show",
+      "type": "css",
+      "code": ".page.show {\r\n    /*visibility: visible;*/\r\n    transform: translateX(0);\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792403620116,
+      "updatedAt": 1792489950686
+    },
+    {
+      "id": "mvf2u4obhvjlxp",
+      "name": ".drawings",
+      "type": "css",
+      "code": ".drawings {\r\n    display: flex;\r\n    gap: 1rem;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792403620139,
+      "updatedAt": 1792489950701
+    },
+    {
+      "id": "mvf2u4p1uplvyw",
+      "name": ".page h1",
+      "type": "css",
+      "code": ".page h1 {\r\n    font-family: \"Cabin Sketch\";\r\n}",
+      "description": "Extracted rule from file",
+      "createdAt": 1792403620165,
+      "updatedAt": 1792489950717
+    },
+    {
+      "id": "mvf2vizd69w6tw",
+      "name": ".page .show",
+      "type": "css",
+      "code": ".page .show {\r\n    \r\n    left: 0;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792403685337,
+      "updatedAt": 1792403685337
+    },
+    {
+      "id": "mvghqc4q45pdgb",
+      "name": "SketchButton",
+      "type": "js",
+      "code": "class SketchButton {\r\n    constructor(canvasId, label, hoverFill, onClick, x, y, width = 200, height = 100) {\r\n        this.canvas = document.getElementById(canvasId);\r\n        if (!this.canvas) {\r\n            throw new Error(`Canvas \"${canvasId}\" was not found.`);\r\n        }\r\n\r\n        if (typeof onClick !== 'function') {\r\n            throw new TypeError('SketchButton onClick must be a function.');\r\n        }\r\n        if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {\r\n            throw new RangeError('SketchButton position and dimensions must be finite, with positive width and height.');\r\n        }\r\n\r\n        this.context = this.canvas.getContext('2d');\r\n        if (!this.context) {\r\n            throw new Error(`Canvas \"${canvasId}\" does not support 2D drawing.`);\r\n        }\r\n\r\n        this.roughCanvas = rough.canvas(this.canvas);\r\n        this.label = label;\r\n        this.hoverFill = hoverFill;\r\n        this.onClick = onClick;\r\n        this.bounds = { x, y, width, height };\r\n        this.hovered = false;\r\n\r\n        let buttons = buttonsByCanvas.get(this.canvas);\r\n        if (!buttons) {\r\n            buttons = [];\r\n            buttonsByCanvas.set(this.canvas, buttons);\r\n            this.canvas.addEventListener('mousemove', event => this.handleMouseMove(event));\r\n            this.canvas.addEventListener('mouseleave', () => this.handleMouseLeave());\r\n            this.canvas.addEventListener('click', event => {\r\n                const target = [...buttons].reverse().find(button => button.contains(event));\r\n                if (target) target.onClick();\r\n            });\r\n        }\r\n        buttons.push(this);\r\n\r\n        this.draw();\r\n    }\r\n\r\n    contains(event) {\r\n        const rect = this.canvas.getBoundingClientRect();\r\n        if (!rect.width || !rect.height) return false;\r\n\r\n        const x = (event.clientX - rect.left) * this.canvas.width / rect.width;\r\n        const y = (event.clientY - rect.top) * this.canvas.height / rect.height;\r\n        const { x: left, y: top, width, height } = this.bounds;\r\n\r\n        return x >= left && x <= left + width &&\r\n            y >= top && y <= top + height;\r\n    }\r\n\r\n    handleMouseMove(event) {\r\n        let changed = false;\r\n        let hoveredButton = false;\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            const hovered = button.contains(event);\r\n            if (hovered) hoveredButton = true;\r\n            if (button.hovered !== hovered) {\r\n                button.hovered = hovered;\r\n                changed = true;\r\n            }\r\n        }\r\n        this.canvas.style.cursor = hoveredButton ? 'pointer' : 'default';\r\n        if (changed) this.draw();\r\n    }\r\n\r\n    handleMouseLeave() {\r\n        let changed = false;\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            if (button.hovered) {\r\n                button.hovered = false;\r\n                changed = true;\r\n            }\r\n        }\r\n        this.canvas.style.cursor = 'default';\r\n        if (changed) this.draw();\r\n    }\r\n\r\n    draw() {\r\n        const context = this.context;\r\n        context.clearRect(0, 0, this.canvas.width, this.canvas.height);\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            button.drawButton();\r\n        }\r\n    }\r\n\r\n    drawButton() {\r\n        const { x, y, width, height } = this.bounds;\r\n        const { context } = this;\r\n        this.roughCanvas.rectangle(x, y, width, height, {\r\n            fill: this.hovered ? this.hoverFill : 'pink',\r\n            fillStyle: this.hovered ? 'cross-hatch' : 'hachure'\r\n        });\r\n\r\n        context.font = '16px \"Cabin Sketch\", cursive, sans-serif';\r\n        context.fillStyle = '#000000';\r\n        context.textAlign = 'center';\r\n        context.textBaseline = 'middle';\r\n        context.fillText(this.label, x + width / 2, y + height / 2);\r\n    }\r\n}\r",
+      "description": "Extracted class from file",
+      "createdAt": 1792489103594,
+      "updatedAt": 1792489861919
+    }
+  ]
+}
