@@ -5,28 +5,28 @@
       "id": "mvf1jo684229yg",
       "name": "setup",
       "type": "js",
-      "code": "function setup() {\r\n    currentPage = '#page1';\r\n\r\n    new SketchButton('myCanvas', 'Start!', 'lightblue', () => {\r\n        shiftPage('#page2');\r\n    }, 100, 50, 150, 90);\r\n    new SketchButton('myCanvas', 'Options', 'lightblue', () => {\r\n        shiftPage('#page3');\r\n    }, 100, 180, 250, 110);\r\n\r\n    new SketchButton('myCanvas2', 'Go Back!', 'lightgreen', () => {\r\n        shiftPage('#page1');\r\n    }, 80, 50, 150, 90);\r\n}\r",
+      "code": "function setup() {\r\n    currentPage = '#page1';\r\n\r\n    canvas.fill = red(color);\r\n    canvas.fillStyle = hachure;\r\n\r\n    new SketchButton('myCanvas', 'Start!', 'lightblue', () => {\r\n        shiftPage('#page2');\r\n    }, 75, 50, 250, 110);\r\n    new SketchButton('myCanvas', 'Options', 'orange', () => {\r\n        shiftPage('#page3');\r\n    }, 125, 180, 150, 70);\r\n\r\n    new SketchButton('myCanvas2', 'Go Back!', 'lightgreen', () => {\r\n        shiftPage('#page1');\r\n    }, 125, 50, 150, 90);\r\n}\r",
       "description": "Extracted function from file",
       "createdAt": 1792401452576,
-      "updatedAt": 1792489861933
+      "updatedAt": 1792495602850
     },
     {
       "id": "mvf2u4n2dt1xin",
       "name": ".page",
       "type": "css",
-      "code": ".page {\r\n    width: 100vw;\r\n    height: 100vh;\r\n    overflow: hidden;\r\n    /*visibility: hidden;\r\n     grid layout */\r\n    display: grid;\r\n    place-items: center;\r\n    position: absolute;\r\n    left: 0;\r\n    transform: translateX(-100%);\r\n    transition: transform 1s ease-in-out;\r\n}\r",
+      "code": ".page {\r\n    width: 100vw;\r\n    height: 100vh;\r\n    overflow: hidden;\r\n    /*visibility: hidden;\r\n     grid layout */\r\n    display: grid;\r\n    place-items: center;\r\n    position: absolute;\r\n    left: 0;\r\n    transform: translateY(-100%);\r\n    transition: transform 1s ease-in-out;\r\n}\r",
       "description": "Extracted rule from file",
       "createdAt": 1792403620094,
-      "updatedAt": 1792489950662
+      "updatedAt": 1793006051738
     },
     {
       "id": "mvf2u4nobs4m0s",
       "name": ".page.show",
       "type": "css",
-      "code": ".page.show {\r\n    /*visibility: visible;*/\r\n    transform: translateX(0);\r\n}\r",
+      "code": ".page.show {\r\n    /*visibility: visible;*/\r\n    transform: translateY(0);\r\n}\r",
       "description": "Extracted rule from file",
       "createdAt": 1792403620116,
-      "updatedAt": 1792489950686
+      "updatedAt": 1793006051758
     },
     {
       "id": "mvf2u4obhvjlxp",
@@ -35,7 +35,7 @@
       "code": ".drawings {\r\n    display: flex;\r\n    gap: 1rem;\r\n}\r",
       "description": "Extracted rule from file",
       "createdAt": 1792403620139,
-      "updatedAt": 1792489950701
+      "updatedAt": 1793006051776
     },
     {
       "id": "mvf2u4p1uplvyw",
@@ -44,7 +44,7 @@
       "code": ".page h1 {\r\n    font-family: \"Cabin Sketch\";\r\n}",
       "description": "Extracted rule from file",
       "createdAt": 1792403620165,
-      "updatedAt": 1792489950717
+      "updatedAt": 1793006051793
     },
     {
       "id": "mvf2vizd69w6tw",
@@ -62,7 +62,376 @@
       "code": "class SketchButton {\r\n    constructor(canvasId, label, hoverFill, onClick, x, y, width = 200, height = 100) {\r\n        this.canvas = document.getElementById(canvasId);\r\n        if (!this.canvas) {\r\n            throw new Error(`Canvas \"${canvasId}\" was not found.`);\r\n        }\r\n\r\n        if (typeof onClick !== 'function') {\r\n            throw new TypeError('SketchButton onClick must be a function.');\r\n        }\r\n        if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {\r\n            throw new RangeError('SketchButton position and dimensions must be finite, with positive width and height.');\r\n        }\r\n\r\n        this.context = this.canvas.getContext('2d');\r\n        if (!this.context) {\r\n            throw new Error(`Canvas \"${canvasId}\" does not support 2D drawing.`);\r\n        }\r\n\r\n        this.roughCanvas = rough.canvas(this.canvas);\r\n        this.label = label;\r\n        this.hoverFill = hoverFill;\r\n        this.onClick = onClick;\r\n        this.bounds = { x, y, width, height };\r\n        this.hovered = false;\r\n\r\n        let buttons = buttonsByCanvas.get(this.canvas);\r\n        if (!buttons) {\r\n            buttons = [];\r\n            buttonsByCanvas.set(this.canvas, buttons);\r\n            this.canvas.addEventListener('mousemove', event => this.handleMouseMove(event));\r\n            this.canvas.addEventListener('mouseleave', () => this.handleMouseLeave());\r\n            this.canvas.addEventListener('click', event => {\r\n                const target = [...buttons].reverse().find(button => button.contains(event));\r\n                if (target) target.onClick();\r\n            });\r\n        }\r\n        buttons.push(this);\r\n\r\n        this.draw();\r\n    }\r\n\r\n    contains(event) {\r\n        const rect = this.canvas.getBoundingClientRect();\r\n        if (!rect.width || !rect.height) return false;\r\n\r\n        const x = (event.clientX - rect.left) * this.canvas.width / rect.width;\r\n        const y = (event.clientY - rect.top) * this.canvas.height / rect.height;\r\n        const { x: left, y: top, width, height } = this.bounds;\r\n\r\n        return x >= left && x <= left + width &&\r\n            y >= top && y <= top + height;\r\n    }\r\n\r\n    handleMouseMove(event) {\r\n        let changed = false;\r\n        let hoveredButton = false;\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            const hovered = button.contains(event);\r\n            if (hovered) hoveredButton = true;\r\n            if (button.hovered !== hovered) {\r\n                button.hovered = hovered;\r\n                changed = true;\r\n            }\r\n        }\r\n        this.canvas.style.cursor = hoveredButton ? 'pointer' : 'default';\r\n        if (changed) this.draw();\r\n    }\r\n\r\n    handleMouseLeave() {\r\n        let changed = false;\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            if (button.hovered) {\r\n                button.hovered = false;\r\n                changed = true;\r\n            }\r\n        }\r\n        this.canvas.style.cursor = 'default';\r\n        if (changed) this.draw();\r\n    }\r\n\r\n    draw() {\r\n        const context = this.context;\r\n        context.clearRect(0, 0, this.canvas.width, this.canvas.height);\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            button.drawButton();\r\n        }\r\n    }\r\n\r\n    drawButton() {\r\n        const { x, y, width, height } = this.bounds;\r\n        const { context } = this;\r\n        this.roughCanvas.rectangle(x, y, width, height, {\r\n            fill: this.hovered ? this.hoverFill : 'pink',\r\n            fillStyle: this.hovered ? 'cross-hatch' : 'hachure'\r\n        });\r\n\r\n        context.font = '16px \"Cabin Sketch\", cursive, sans-serif';\r\n        context.fillStyle = '#000000';\r\n        context.textAlign = 'center';\r\n        context.textBaseline = 'middle';\r\n        context.fillText(this.label, x + width / 2, y + height / 2);\r\n    }\r\n}\r",
       "description": "Extracted class from file",
       "createdAt": 1792489103594,
-      "updatedAt": 1792489861919
+      "updatedAt": 1792495602814
+    },
+    {
+      "id": "mvgibtsuhg0p1q",
+      "name": "body, *",
+      "type": "css",
+      "code": "body, * {\r\n    margin: 0;\r\n    box-sizing: border-box;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106270,
+      "updatedAt": 1792492931654
+    },
+    {
+      "id": "mvgibtt8vwgyap",
+      "name": "#toast",
+      "type": "css",
+      "code": "#toast{\r\n    width:20rem;\r\n    height:8rem;\r\n    display:grid;\r\n    place-items:center;\r\n    font-size:1.1rem;\r\n    color:darkslategray;\r\n    position:fixed;\r\n    top:-12rem;\r\n    right:2rem;\r\n    padding: 1rem;\r\n    border-radius: 1rem;\r\n    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);\r\n    transition: top 0.5s ease-in-out;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106284,
+      "updatedAt": 1792492931684
+    },
+    {
+      "id": "mvgibttknuxuin",
+      "name": "#toast.toastShow",
+      "type": "css",
+      "code": "#toast.toastShow{\r\n    top:2rem;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106296,
+      "updatedAt": 1792492931702
+    },
+    {
+      "id": "mvgibttvzyf1nd",
+      "name": "#toast.toastShow.notify",
+      "type": "css",
+      "code": "#toast.toastShow.notify{\r\n    background-color: #f1f1f1;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106307,
+      "updatedAt": 1792492931721
+    },
+    {
+      "id": "mvgibtu7fgsxds",
+      "name": "#toast.toastShow.warning",
+      "type": "css",
+      "code": "#toast.toastShow.warning{\r\n    background-color:lightpink;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106319,
+      "updatedAt": 1792492931739
+    },
+    {
+      "id": "mvgibtujqth57u",
+      "name": ".card",
+      "type": "css",
+      "code": ".card{\r\n    height:100%;\r\n    width:100%;\r\n    position: relative;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106331,
+      "updatedAt": 1792492931761
+    },
+    {
+      "id": "mvgibtv1dlnw65",
+      "name": ".card-delete",
+      "type": "css",
+      "code": ".card-delete {\r\n    position: absolute;\r\n    top: 0.5rem;\r\n    right: 0.7rem;\r\n    font-size: 1.4rem;\r\n    line-height: 1;\r\n    opacity: 0.35;\r\n    cursor: pointer;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106349,
+      "updatedAt": 1792492931784
+    },
+    {
+      "id": "mvgibtvzva4c6g",
+      "name": ".card-delete:hover",
+      "type": "css",
+      "code": ".card-delete:hover {\r\n    opacity: 1;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106383,
+      "updatedAt": 1792492931807
+    },
+    {
+      "id": "mvgibtwe5tur3z",
+      "name": ".card img",
+      "type": "css",
+      "code": ".card img{\r\n    width:100%;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106398,
+      "updatedAt": 1792492931834
+    },
+    {
+      "id": "mvgibtwqscrn8t",
+      "name": ".card h2",
+      "type": "css",
+      "code": ".card h2{\r\n    font-size:1rem;\r\n    font-weight:bold;\r\n    margin:0;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106410,
+      "updatedAt": 1792492931858
+    },
+    {
+      "id": "mvgibtx3fmmlge",
+      "name": ".card p",
+      "type": "css",
+      "code": ".card p{\r\n    margin:0;\r\n    font-size:1rem;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106423,
+      "updatedAt": 1792492931896
+    },
+    {
+      "id": "mvgibtxeciuru7",
+      "name": ".timer",
+      "type": "css",
+      "code": ".timer {\r\n    position: fixed;\r\n    width: 8rem;\r\n    height: 8rem;\r\n    display: grid;\r\n    place-items: center;\r\n    font-size: 3rem;\r\n    color: whitesmoke;\r\n    text-shadow: 4px 4px 8px black;\r\n    background-color: whitesmoke;\r\n    background-size: cover;\r\n    background-position: center;\r\n    border-radius: 1rem;\r\n    z-index: 2;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106434,
+      "updatedAt": 1792492931923
+    },
+    {
+      "id": "mvgibtxo8no3zp",
+      "name": ".timer.top-left",
+      "type": "css",
+      "code": ".timer.top-left { top: 2rem; left: 2rem; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106444,
+      "updatedAt": 1792492931942
+    },
+    {
+      "id": "mvgibtycbznls7",
+      "name": ".timer.top-right",
+      "type": "css",
+      "code": ".timer.top-right { top: 2rem; right: 2rem; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106468,
+      "updatedAt": 1792492931963
+    },
+    {
+      "id": "mvgibtytf27ykt",
+      "name": ".timer.bottom-left",
+      "type": "css",
+      "code": ".timer.bottom-left { bottom: 2rem; left: 2rem; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106485,
+      "updatedAt": 1792492931987
+    },
+    {
+      "id": "mvgibtz6794sjo",
+      "name": ".timer.bottom-right",
+      "type": "css",
+      "code": ".timer.bottom-right { bottom: 2rem; right: 2rem; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1792490106498,
+      "updatedAt": 1792492932009
+    },
+    {
+      "id": "mvgibxi5rtt0vs",
+      "name": "Ball",
+      "type": "js",
+      "code": "class Ball {\r\n  constructor(x, y, r, img, col, xSpeed, ySpeed, bounds){ \r\n    this.diam = r\r\n    this.velocity = createVector(xSpeed || 0, ySpeed || 0)\r\n    this.position = createVector(x, y)\r\n    this.img = null\r\n    this.col = null\r\n    if(typeof img === 'string'){\r\n      this.col = img\r\n    } else if(img){\r\n      this.img = img\r\n    }\r\n    if(col) this.col = col\r\n    this.bounds = bounds || [false, false, false, false]\r\n    this.mass = this.diam\r\n    this.fixed = false\r\n  }\r\n  update(){\r\n    this.position.add(this.velocity)\r\n  }\r\n  show(){\r\n    if(this.img){\r\n      imageMode(CENTER)\r\n      image(this.img, this.position.x, this.position.y, this.diam, this.diam)\r\n    }else if(this.col){\r\n      noStroke()\r\n      fill(this.col)\r\n      circle(this.position.x, this.position.y, this.diam)\r\n    }\r\n  }\r\n  constrain(){\r\n    var r = this.diam / 2\r\n    var b = this.bounds\r\n    if(b[0] && this.position.x < r){\r\n      this.position.x = r\r\n      this.velocity.x *= -1\r\n    }\r\n    if(b[1] && this.position.x > width - r){\r\n      this.position.x = width - r\r\n      this.velocity.x *= -1\r\n    }\r\n    if(b[2] && this.position.y < r){\r\n      this.position.y = r\r\n      this.velocity.y *= -1\r\n    }\r\n    if(b[3] && this.position.y > height - r){\r\n      this.position.y = height - r\r\n      this.velocity.y *= -1\r\n    }\r\n  }\r\n  hit(anotherBall){\r\n    var b = anotherBall\r\n    var totalR = (this.diam + b.diam) / 2\r\n    var d = dist(this.position.x, this.position.y, b.position.x, b.position.y)\r\n    return d <= totalR\r\n  }\r\n\r\n  bounce(other){\r\n    // --- FASE 1: Rører de hinanden? ---\r\n    var normal = p5.Vector.sub(this.position, other.position)\r\n    var afstand = normal.mag()\r\n    if(afstand === 0) normal.set(1, 0) // Undgå at dele med 0, hvis de ligger præcis oven i hinanden\r\n    else normal.normalize()\r\n\r\n    var overlap = (this.diam + other.diam) / 2 - afstand\r\n    if(overlap <= 0) return // De rører ikke hinanden, afbryd.\r\n\r\n    // --- FASE 2: Skub dem fra hinanden (så de ikke sidder fast) ---\r\n    // Vi bruger invers masse. Fixed bolde har værdien 0 og lader sig ikke rykke.\r\n    var invM1 = this.fixed ? 0 : 1 / this.mass\r\n    var invM2 = other.fixed ? 0 : 1 / other.mass\r\n    var sumInvM = invM1 + invM2\r\n    if(sumInvM === 0) return // Begge bolde er fixed, vi stopper her.\r\n\r\n    // Skub boldene væk fra hinanden, proportionelt med hvor \"lette\" de er.\r\n    this.position.add(p5.Vector.mult(normal, overlap * (invM1 / sumInvM)))\r\n    other.position.sub(p5.Vector.mult(normal, overlap * (invM2 / sumInvM)))\r\n\r\n    // --- FASE 3: Selve bouncet (ændring af hastighed) ---\r\n    // Hvor hurtigt bevæger de sig direkte imod hinanden?\r\n    var relativHastighed = p5.Vector.sub(this.velocity, other.velocity)\r\n    var fartModHinanden = relativHastighed.dot(normal)\r\n\r\n    // Hvis de allerede bevæger sig væk fra hinanden, skal vi ikke gøre mere.\r\n    if(fartModHinanden >= 0) return\r\n\r\n    // Udregn stød-kraften (impuls). Tallet 2 betyder 100% elastisk stød (ingen energi går tabt).\r\n    var stødKraft = -(2 * fartModHinanden) / sumInvM\r\n    var stødVektor = p5.Vector.mult(normal, stødKraft)\r\n\r\n    // Påfør stød-kraften på boldenes hastighed, igen baseret på hvor lette de er.\r\n    this.velocity.add(p5.Vector.mult(stødVektor, invM1))\r\n    other.velocity.sub(p5.Vector.mult(stødVektor, invM2))\r\n    this.didBounce = true\r\n    other.didBounce = true\r\n  }\r\n}\r",
+      "description": "Extracted class from file",
+      "createdAt": 1792490111069,
+      "updatedAt": 1792490111069
+    },
+    {
+      "id": "mvgibxisu53pzg",
+      "name": "JumpingBall",
+      "type": "js",
+      "code": "class JumpingBall extends Ball{\r\n  constructor(x, y, r, img, jump, col, bounds){\r\n    super(x, y, r, img, col, 0, 0, bounds || [false, false, false, true])\r\n    this.jumpForce = jump\r\n  }\r\n  update(){\r\n    this.velocity.add(gravity)\r\n    this.velocity.y *= friction\r\n    super.update()\r\n  }\r\n  jump(){\r\n    this.velocity.y -= this.jumpForce\r\n  }\r\n}\r",
+      "description": "Extracted class from file",
+      "createdAt": 1792490111092,
+      "updatedAt": 1792490111092
+    },
+    {
+      "id": "mvgibxj8md59oh",
+      "name": "SpringBall",
+      "type": "js",
+      "code": "class SpringBall extends Ball{\r\n  constructor(x, y, r, img, maxDragDist, col, bounds){\r\n    super(x, y, r, img, col, 0, 0, bounds)\r\n    this.start = createVector(x, y)\r\n    this.maxDragDist = maxDragDist\r\n    this.isFlying = false\r\n    this.isDragging = false\r\n    this.hasHit = false\r\n  }\r\n\r\n  drag(){\r\n    var mouse = createVector(mouseX, mouseY)\r\n    mouse.sub(this.start)\r\n    if(mouse.mag() > this.maxDragDist) mouse.setMag(this.maxDragDist)\r\n    this.position = this.start.copy()\r\n    this.position.add(mouse)\r\n    this.isDragging = true\r\n  }\r\n\r\n  launch(){\r\n    this.velocity = this.start.copy()\r\n    this.velocity.sub(this.position)\r\n    this.velocity.mult(0.15) // 0.15 dæmper farten, så bolden ikke flyver for hurtigt\r\n    this.isFlying = true\r\n    this.isDragging = false\r\n  }\r\n\r\n  reset(){\r\n    this.position = this.start.copy()\r\n    this.velocity = createVector(0, 0)\r\n    this.isFlying = false\r\n    this.isDragging = false\r\n    this.hasHit = false\r\n  }\r\n\r\n  update(){\r\n    if(!this.isFlying) return\r\n    this.velocity.add(gravity)\r\n    super.update()\r\n  }\r\n\r\n  show(){\r\n    noFill()\r\n    stroke(255, 70)\r\n    strokeWeight(1)\r\n    circle(this.start.x, this.start.y, this.maxDragDist * 2)\r\n    if(this.isDragging){\r\n      line(this.start.x, this.start.y, this.position.x, this.position.y)\r\n    }\r\n    super.show()\r\n  }\r\n}\r",
+      "description": "Extracted class from file",
+      "createdAt": 1792490111108,
+      "updatedAt": 1792490111108
+    },
+    {
+      "id": "mvgibxjkzcafzg",
+      "name": "MovingBall",
+      "type": "js",
+      "code": "class MovingBall extends Ball{\r\n  constructor(x, y, r, img, speed, col, bounds){\r\n    super(x, y, r, img, col, 0, 0, bounds)\r\n    this.speed = speed\r\n    this.heading = createVector(1, 0)\r\n  }\r\n\r\n  left(){\r\n    this.heading.x -= 0.1\r\n  }\r\n  right(){\r\n    this.heading.x += 0.1\r\n  }\r\n  up(){\r\n    this.heading.y -= 0.1\r\n  }\r\n  down(){\r\n    this.heading.y += 0.1\r\n  }\r\n  forward(){\r\n    this.velocity.set(this.heading.x * this.speed, this.heading.y * this.speed)\r\n  }\r\n  back(){\r\n    this.velocity.set(this.heading.x * -this.speed, this.heading.y * -this.speed)\r\n  }\r\n\r\n  update(){\r\n    this.heading.normalize()\r\n    super.update()\r\n  }\r\n\r\n  show(){\r\n    super.show()\r\n    var tip = this.heading.copy().setMag(this.diam)\r\n    stroke(0)\r\n    strokeWeight(3)\r\n    line(this.position.x, this.position.y, this.position.x + tip.x, this.position.y + tip.y)\r\n  }\r\n}\r",
+      "description": "Extracted class from file",
+      "createdAt": 1792490111120,
+      "updatedAt": 1792490111120
+    },
+    {
+      "id": "mvgibxjzhhsokm",
+      "name": "ShootingBall",
+      "type": "js",
+      "code": "class ShootingBall extends MovingBall{\r\n  constructor(x, y, r, img, speed, bulletSpeed, col, bounds){\r\n    super(x, y, r, img, speed, col, bounds)\r\n    this.bulletSpeed = bulletSpeed\r\n    this.bullets = []\r\n  }\r\n\r\n  shoot(){\r\n    this.bullets.push(new Bullet(\r\n      this.position.x + this.heading.x * this.diam,\r\n      this.position.y + this.heading.y * this.diam,\r\n      this.heading,\r\n      this.bulletSpeed,\r\n      this.col\r\n    ))\r\n  }\r\n\r\n  update(){\r\n    super.update()\r\n    this.bullets.map(b => b.update())\r\n    this.bullets = this.bullets.filter(b => !b.isGone())\r\n  }\r\n\r\n  show(){\r\n    super.show()\r\n    this.bullets.map(b => b.show())\r\n  }\r\n}\r",
+      "description": "Extracted class from file",
+      "createdAt": 1792490111135,
+      "updatedAt": 1792490111135
+    },
+    {
+      "id": "mvgibxkdahjvof",
+      "name": "Bullet",
+      "type": "js",
+      "code": "class Bullet extends Ball{\r\n  constructor(x, y, heading, speed, col){\r\n    super(x, y, 16, null, col || '#111', heading.x * speed, heading.y * speed)\r\n  }\r\n\r\n  isGone(){\r\n    return this.position.x < 0 || this.position.x > width || this.position.y < 0 || this.position.y > height\r\n  }\r\n}\r",
+      "description": "Extracted class from file",
+      "createdAt": 1792490111149,
+      "updatedAt": 1792490111149
+    },
+    {
+      "id": "mvgibxkuyn5n1r",
+      "name": "Firebase",
+      "type": "js",
+      "code": "class Firebase {\r\n  constructor(collection) {\r\n    this.ref = db.collection(collection)\r\n  }\r\n\r\n  save(name, points) {\r\n    this.ref.add({\r\n      name: name,\r\n      points: points,\r\n      timestamp: firebase.firestore.FieldValue.serverTimestamp()\r\n    })\r\n  }\r\n\r\n  listen(onUpdate, limit, sort, dir='desc') {\r\n    var q = this.ref.orderBy(sort, dir)\r\n    if(limit) q = q.limit(limit)\r\n    return q.onSnapshot(snap => {\r\n      var list = []\r\n      snap.forEach(doc => {\r\n        var d = doc.data()\r\n        d.id = doc.id\r\n        list.push(d)\r\n      })\r\n      onUpdate(list)\r\n    })\r\n  }\r\n\r\n  remove(id) {\r\n    this.ref.doc(id).delete()\r\n  }\r\n\r\n  clear() {\r\n    this.ref.get().then(snap => {\r\n      snap.forEach(doc => doc.ref.delete())\r\n    })\r\n  }\r\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1792490111166,
+      "updatedAt": 1792490111166
+    },
+    {
+      "id": "mvgid24rly6pvj",
+      "name": "showToast",
+      "type": "js",
+      "code": "function showToast(txt, timeout=2000, type=\"notify\"){\r\n    var toast  \r\n    try {\r\n        toast = select('#toast')\r\n    }catch(err){\r\n        console.log('Couldnt select element with id: ' , toastDiv, err)\r\n        return\r\n    }\r\n\r\n    toast.html(txt)\r\n    toast.addClass(type)\r\n    toast.addClass('toastShow')\r\n    setTimeout(()=>{\r\n        toast.removeClass(type)\r\n        toast.removeClass('toastShow')\r\n    }, timeout)\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163723,
+      "updatedAt": 1792490163723
+    },
+    {
+      "id": "mvgid25ahr2m21",
+      "name": "shiftPage",
+      "type": "js",
+      "code": "function shiftPage(newPageId){\r\n    if(select(currentPage)) select(currentPage).removeClass('show')\r\n    select(newPageId).addClass('show')\r\n    currentPage = newPageId\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163742,
+      "updatedAt": 1792490163742
+    },
+    {
+      "id": "mvgid25op1cxg3",
+      "name": "createMenu",
+      "type": "js",
+      "code": "function createMenu(menuDivId, onShift){\r\n    onShift = onShift || shiftPage\r\n    var allPages = selectAll('.page')\r\n    allPages.map( p => {\r\n        var a = createElement('a')\r\n        if(p.attribute('title')){\r\n            a.html( p.attribute('title') )\r\n        }else{\r\n            a.html( p.attribute('id') )\r\n        }\r\n        a.mousePressed( ()=>{ onShift('#' + p.attribute('id'))} )\r\n        select(menuDivId).child(a)\r\n    } )\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163756,
+      "updatedAt": 1792490163756
+    },
+    {
+      "id": "mvgid264s683ns",
+      "name": "getJSON",
+      "type": "js",
+      "code": "async function getJSON( endpoint ){\r\n    //Vi starter med at kontakte serveren med et request\r\n    var res \r\n    try{\r\n        res = await fetch( endpoint )\r\n    }catch(err){\r\n        console.log(err)\r\n    }\r\n    //Hvis response er ok, henter vi json data \r\n    var json = await res.json()\r\n    console.log('Hentede poster fra fetchJSON', json)\r\n    return json \r\n}\r",
+      "description": "Extracted async function from file",
+      "createdAt": 1792490163772,
+      "updatedAt": 1792490163772
+    },
+    {
+      "id": "mvgid26khy54rr",
+      "name": "createCard",
+      "type": "js",
+      "code": "function createCard(title = \"\", text = \"\", image = \"\", callback){\r\n    if(typeof image === 'function'){\r\n        callback = image\r\n        image = \"\"\r\n    }\r\n    var card = createDiv().addClass('card')\r\n    if(image) card.child(createImg(image))\r\n    card.child(createElement('h2', title))\r\n    card.child(createElement('p', text))\r\n    if(callback){\r\n        var del = createElement('span', '×').addClass('card-delete')\r\n        del.mousePressed(callback)\r\n        card.child(del)\r\n    }\r\n    return card\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163788,
+      "updatedAt": 1792490163788
+    },
+    {
+      "id": "mvgid2740mxdis",
+      "name": "startTimer",
+      "type": "js",
+      "code": "function startTimer(from, to, corner = 'top-right', callback, bg) {\r\n    selectAll('.timer').map(el => el.remove())\r\n    var timer = createDiv(from)\r\n    timer.addClass('timer')\r\n    timer.addClass(corner)\r\n    if (bg) timer.style('background-image', 'url(' + bg + ')')\r\n\r\n    // Skal vi tælle op eller ned?\r\n    var step = from < to ? 1 : -1\r\n    var now = from\r\n\r\n    var tick = setInterval(() => {\r\n        now += step\r\n        timer.html(now)\r\n\r\n        // Er vi i mål?\r\n        if (now === to) {\r\n            clearInterval(tick)\r\n            callback(now)\r\n        }\r\n    }, 1000)\r\n\r\n    return timer\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163808,
+      "updatedAt": 1792490163808
+    },
+    {
+      "id": "mvgid27py9txe5",
+      "name": "num",
+      "type": "js",
+      "code": "function num(id){\r\n    return Number(select(id).value())\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163829,
+      "updatedAt": 1792490163829
+    },
+    {
+      "id": "mvgid28fuxs97v",
+      "name": "txt",
+      "type": "js",
+      "code": "function txt(id){\r\n    return select(id).value()\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163855,
+      "updatedAt": 1792490163855
+    },
+    {
+      "id": "mvgid29d1imabq",
+      "name": "wireInputs",
+      "type": "js",
+      "code": "function wireInputs(ids, fn){\r\n    ids.map(id => select(id).input(fn))\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163889,
+      "updatedAt": 1792490163889
+    },
+    {
+      "id": "mvgid2akgkfqnm",
+      "name": "wireFile",
+      "type": "js",
+      "code": "function wireFile(el, onLoad){\r\n    if(typeof el == 'string') el = select(el)\r\n    el.changed(function(){\r\n        var file = this.elt.files[0]\r\n        if(!file){\r\n            onLoad(null)\r\n            return\r\n        }\r\n        loadImage(URL.createObjectURL(file), onLoad)\r\n    })\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163932,
+      "updatedAt": 1792490163932
+    },
+    {
+      "id": "mvgid2bwymj7xc",
+      "name": "canvasWidth",
+      "type": "js",
+      "code": "function canvasWidth(sidebar = '.sidebar'){\r\n    if(windowWidth <= 800) return windowWidth\r\n    var bar = select(sidebar)\r\n    if(!bar) return windowWidth\r\n    return windowWidth - bar.elt.offsetWidth\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490163980,
+      "updatedAt": 1792490163980
+    },
+    {
+      "id": "mvgid2cocwdcsb",
+      "name": "sizeCanvas",
+      "type": "js",
+      "code": "function sizeCanvas(sidebar = '.sidebar'){\r\n    resizeCanvas(canvasWidth(sidebar), windowHeight)\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490164008,
+      "updatedAt": 1792490164008
+    },
+    {
+      "id": "mvgid2dchdqi9e",
+      "name": "windowResized",
+      "type": "js",
+      "code": "function windowResized(){\r\n    sizeCanvas()\r\n}",
+      "description": "Extracted function from file",
+      "createdAt": 1792490164032,
+      "updatedAt": 1792490164032
+    },
+    {
+      "id": "mvgidvwgldgu8f",
+      "name": "mermaidTheme",
+      "type": "js",
+      "code": "function mermaidTheme(){\r\n  return {\r\n    startOnLoad: false,\r\n    theme: 'base',\r\n    themeVariables: {\r\n      fontFamily: 'Inter, system-ui, sans-serif',\r\n      fontSize: '13px',\r\n      primaryColor: '#ffffff',\r\n      primaryTextColor: '#44515c',\r\n      primaryBorderColor: '#6a7d8c',\r\n      secondaryColor: '#ffffff',\r\n      tertiaryColor: '#f2f4f6',\r\n      lineColor: '#6a7d8c',\r\n      arrowheadColor: '#6a7d8c',\r\n      clusterBkg: 'transparent',\r\n      clusterBorder: 'transparent',\r\n      edgeLabelBackground: '#f2f4f6',\r\n      titleColor: '#44515c',\r\n      nodeTextColor: '#44515c'\r\n    },\r\n    flowchart: {\r\n      htmlLabels: true,\r\n      curve: 'linear',\r\n      padding: 12,\r\n      nodeSpacing: 28,\r\n      rankSpacing: 48,\r\n      useMaxWidth: true,\r\n      diagramPadding: 8\r\n    }\r\n  }\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490202304,
+      "updatedAt": 1792490202304
+    },
+    {
+      "id": "mvgidvxguhs4yq",
+      "name": "drawFlowcharts",
+      "type": "js",
+      "code": "function drawFlowcharts(){\r\n  if(typeof mermaid === 'undefined') return\r\n  mermaid.initialize(mermaidTheme())\r\n  var nodes = document.querySelectorAll('.flowchart')\r\n  if(nodes.length) mermaid.run({ nodes: nodes })\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490202340,
+      "updatedAt": 1792490202340
+    },
+    {
+      "id": "mvgidvybnrkm7d",
+      "name": "loadMermaid",
+      "type": "js",
+      "code": "function loadMermaid(done){\r\n  if(typeof mermaid !== 'undefined'){\r\n    done()\r\n    return\r\n  }\r\n  var s = document.createElement('script')\r\n  s.src = MERMAID_SRC\r\n  s.onload = done\r\n  document.head.appendChild(s)\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490202371,
+      "updatedAt": 1792490202371
+    },
+    {
+      "id": "mvgidvz5ccgcqz",
+      "name": "startFlowcharts",
+      "type": "js",
+      "code": "function startFlowcharts(){\r\n  loadMermaid(drawFlowcharts)\r\n}\r",
+      "description": "Extracted function from file",
+      "createdAt": 1792490202401,
+      "updatedAt": 1792490202401
+    },
+    {
+      "id": "mvgidvzzo3q2dc",
+      "name": "if",
+      "type": "js",
+      "code": "if(document.readyState === 'loading'){\r\n  document.addEventListener('DOMContentLoaded', startFlowcharts)\r\n} else {\r\n  startFlowcharts()\r\n}\r",
+      "description": "Extracted method from file",
+      "createdAt": 1792490202431,
+      "updatedAt": 1792490202431
     }
   ]
 }

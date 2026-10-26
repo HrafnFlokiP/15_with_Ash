@@ -108,14 +108,17 @@ class SketchButton {
 function setup() {
     currentPage = '#page1';
 
+    canvas.fill = red(color);
+    canvas.fillStyle = hachure;
+
     new SketchButton('myCanvas', 'Start!', 'lightblue', () => {
         shiftPage('#page2');
-    }, 100, 50, 150, 90);
-    new SketchButton('myCanvas', 'Options', 'lightblue', () => {
+    }, 75, 50, 250, 110);
+    new SketchButton('myCanvas', 'Options', 'orange', () => {
         shiftPage('#page3');
-    }, 100, 180, 250, 110);
+    }, 125, 180, 150, 70);
 
     new SketchButton('myCanvas2', 'Go Back!', 'lightgreen', () => {
         shiftPage('#page1');
-    }, 80, 50, 150, 90);
+    }, 125, 50, 150, 90);
 }
