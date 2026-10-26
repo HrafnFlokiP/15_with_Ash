@@ -106,10 +106,8 @@ class SketchButton {
 }
 
 function setup() {
+    noCanvas();
     currentPage = '#page1';
-
-    canvas.fill = red(color);
-    canvas.fillStyle = hachure;
 
     new SketchButton('myCanvas', 'Start!', 'lightblue', () => {
         shiftPage('#page2');
