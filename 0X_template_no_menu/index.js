@@ -108,6 +108,7 @@ class SketchButton {
 function setup() {
     noCanvas();
     currentPage = '#page1';
+    setTimeout(() => shiftPage('#page1'), 250);
 
     new SketchButton('myCanvas', 'Start!', 'lightblue', () => {
         shiftPage('#page2');
