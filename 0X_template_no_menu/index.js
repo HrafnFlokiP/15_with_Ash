@@ -1,3 +1,9 @@
+window.onload = function () {
+    const loadingScreen = document.getElementById("page2");
+
+    loadingScreen.classList.add("hidden");
+};
+
 const buttonsByCanvas = new WeakMap();
 
 class SketchButton {
@@ -107,7 +113,7 @@ class SketchButton {
 
 function setup() {
     noCanvas();
-    currentPage = '#page1';
+    currentPage = '#page2';
     setTimeout(() => shiftPage('#page1'), 250);
 
     new SketchButton('myCanvas', 'Start!', 'lightblue', () => {
