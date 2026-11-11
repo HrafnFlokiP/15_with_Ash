@@ -117,7 +117,7 @@ function setup() {
     setTimeout(() => shiftPage('#page1'), 250);
 
     new SketchButton('myCanvas', 'Start!', 'lightblue', () => {
-        shiftPage('#page2');
+        shiftPage('#page5');
     }, 75, 50, 250, 110);
     new SketchButton('myCanvas', 'Options', 'orange', () => {
         shiftPage('#page3');
@@ -126,4 +126,10 @@ function setup() {
     new SketchButton('myCanvas2', 'Go Back!', 'lightgreen', () => {
         shiftPage('#page1');
     }, 125, 50, 150, 90);
+
+    new SketchButton('myCanvas3', 'Go Back!', 'cyan', () => {
+        shiftPage('#page1');
+    }, 125, 50, 150, 90);
+
+    setupFillHoles();
 }
