@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="api_lib/myApiStyles.css">
     <script src="../api_lib/myClasses.js"></script>
+    <script src="../api_lib/api_classes.js"></script>
     <script src="../api_lib/myApi.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.min.js"></script>
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Cabin+Sketch" />
@@ -37,13 +38,46 @@
 
 
         <div class="page" id="page3">
-            <h1>options</h1>
-            <div class="drawings">
-                <canvas id="myCanvas2" width="1000" height="1000"></canvas>
+            <div class="options">
+                <h1>Options &#9881;&#65039;</h1>
+                <p class="options-intro">Stabilize your game's features:</p>
+
+                <div class="option-row">
+                    <label for="difficultyRange">Difficulty &#128170;</label>
+                    <div class="DifficultySlider">
+                        <input type="range" min="1" max="100" value="50" class="slider" id="difficultyRange">
+                    </div>
+                    <span id="difficultyLabel" class="option-value"></span>
+                </div>
+
+                <div class="option-row">
+                    <label for="brightnessRange">Brightness &#127775;</label>
+                    <div class="BrightnessSlider">
+                        <input type="range" min="1" max="100" value="50" class="slider" id="brightnessRange">
+                    </div>
+                    <span id="brightnessLabel" class="option-value"></span>
+                </div>
+
+                <div class="option-row">
+                    <label for="soundSwitch">Sound &#128264;</label>
+                    <label class="switch">
+                        <input type="checkbox" id="soundSwitch" checked>
+                        <span class="switch-track"></span>
+                    </label>
+                    <span id="soundLabel" class="option-value"></span>
+                </div>
+
+                <div class="drawings">
+                    <canvas id="myCanvas2" width="400" height="150"></canvas>
+                </div>
             </div>
         </div>
         <div class="page" id="page4">
-            <h1>maze haze</h1>
+            <div class="drawings">
+                <div class="maze-wrap">
+                    <div class="maze-stage"><canvas id="MazeHaze" width="1000" height="1000"></canvas></div>
+                </div>
+            </div>
         </div>
         <div class="page" id="page5">
             <div class="drawings">
@@ -52,21 +86,16 @@
         </div>
         <div class="page" id="page6">
             <h1>seb shoter</h1>
+            </div>
         </div>
         <div class="page" id="page7">
             <h1>final screen</h1>
-        </div>
-        <div class="page" id="page3">
-            <br><br>
-            <h1>Very Good Options, as you can see:</h1>
-            <div class="drawings">
-                <canvas id="myCanvas3" width="400" height="300"></canvas>
-            </div>
         </div>
     </main>
     <script src="../node_modules/roughjs/bundled/rough.js"></script>
     <script src="./index.js"></script>
     <script src="./fillholes.js"></script>
+    <script src="./maze.js"></script>
 </body>
 
 </html>

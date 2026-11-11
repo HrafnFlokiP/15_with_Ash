@@ -5,10 +5,10 @@
       "id": "mvf1jo684229yg",
       "name": "setup",
       "type": "js",
-      "code": "function setup() {\r\n    noCanvas();\r\n    currentPage = '#page1';\r\n    setTimeout(() => shiftPage('#page1'), 250);\r\n\r\n    new SketchButton('myCanvas', 'Start!', 'lightblue', () => {\r\n        shiftPage('#page5');\r\n    }, 75, 50, 250, 110);\r\n    new SketchButton('myCanvas', 'Options', 'orange', () => {\r\n        shiftPage('#page3');\r\n    }, 125, 180, 150, 70);\r\n\r\n    new SketchButton('myCanvas2', 'Go Back!', 'lightgreen', () => {\r\n        shiftPage('#page1');\r\n    }, 125, 50, 150, 90);\r\n\r\n    new SketchButton('myCanvas3', 'Go Back!', 'cyan', () => {\r\n        shiftPage('#page1');\r\n    }, 125, 50, 150, 90);\r\n\r\n    setupFillHoles();\r\n}\r",
+      "code": "function setup() {\r\n    noCanvas();\r\n    currentPage = '#page2';\r\n    setTimeout(() => shiftPage('#page1'), 250);\r\n\r\n    new SketchButton('myCanvas', 'Start!', 'lightblue', () => {\r\n        shiftPage('#page4');\r\n    }, 75, 50, 250, 110);\r\n    new SketchButton('myCanvas', 'Options', 'orange', () => {\r\n        shiftPage('#page3');\r\n    }, 125, 180, 150, 70);\r\n\r\n    new SketchButton('myCanvas2', 'Go Back!', 'lightgreen', () => {\r\n        shiftPage('#page1');\r\n    }, 125, 50, 150, 90);\r\n\r\n    new SketchButton('myCanvas3', 'Go Back!', 'cyan', () => {\r\n        shiftPage('#page1');\r\n    }, 125, 50, 150, 90);\r\n\r\n    setupFillHoles();\r\n    setupMazeHaze();\r\n}\r",
       "description": "Extracted function from file",
       "createdAt": 1792401452576,
-      "updatedAt": 1794395585791
+      "updatedAt": 1794397992611
     },
     {
       "id": "mvf2u4n2dt1xin",
@@ -17,7 +17,7 @@
       "code": ".page {\r\n    width: 100vw;\r\n    height: 100vh;\r\n    overflow: hidden;\r\n    top: 0;\r\n    /*visibility: hidden;\r\n     grid layout */\r\n    display: absolute;\r\n    place-items: center;\r\n    position: absolute;\r\n    left: 0;\r\n    pointer-events: none;\r\n    transform: translateY(-100%);\r\n    transition: transform 1s ease-in-out;\r\n}\r",
       "description": "Extracted rule from file",
       "createdAt": 1792403620094,
-      "updatedAt": 1793188097683
+      "updatedAt": 1794401367039
     },
     {
       "id": "mvf2u4nobs4m0s",
@@ -26,7 +26,7 @@
       "code": ".page.show {\r\n    /*visibility: visible;*/\r\n    pointer-events: auto;\r\n    transform: translateY(0);\r\n}\r",
       "description": "Extracted rule from file",
       "createdAt": 1792403620116,
-      "updatedAt": 1793188097711
+      "updatedAt": 1794401367061
     },
     {
       "id": "mvf2u4obhvjlxp",
@@ -35,16 +35,16 @@
       "code": ".drawings {\r\n    display: flex;\r\n    gap: 1rem;\r\n}\r",
       "description": "Extracted rule from file",
       "createdAt": 1792403620139,
-      "updatedAt": 1793188097733
+      "updatedAt": 1794401367082
     },
     {
       "id": "mvf2u4p1uplvyw",
       "name": ".page h1",
       "type": "css",
-      "code": ".page h1 {\r\n    font-family: \"Cabin Sketch\";\r\n    font-size:150px;\r\n    text-align: center;\r\n    line-height: 90px;\r\n    margin-bottom:10rem;\r\n}",
+      "code": ".page h1 {\r\n    font-family: \"Cabin Sketch\";\r\n    font-size:150px;\r\n    text-align: center;\r\n    line-height: 90px;\r\n    margin-bottom:10rem;\r\n}\r",
       "description": "Extracted rule from file",
       "createdAt": 1792403620165,
-      "updatedAt": 1793188097758
+      "updatedAt": 1794401367103
     },
     {
       "id": "mvf2vizd69w6tw",
@@ -59,10 +59,10 @@
       "id": "mvghqc4q45pdgb",
       "name": "SketchButton",
       "type": "js",
-      "code": "class SketchButton {\r\n    constructor(canvasId, label, hoverFill, onClick, x, y, width = 200, height = 100) {\r\n        this.canvas = document.getElementById(canvasId);\r\n        if (!this.canvas) {\r\n            throw new Error(`Canvas \"${canvasId}\" was not found.`);\r\n        }\r\n\r\n        if (typeof onClick !== 'function') {\r\n            throw new TypeError('SketchButton onClick must be a function.');\r\n        }\r\n        if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {\r\n            throw new RangeError('SketchButton position and dimensions must be finite, with positive width and height.');\r\n        }\r\n\r\n        this.context = this.canvas.getContext('2d');\r\n        if (!this.context) {\r\n            throw new Error(`Canvas \"${canvasId}\" does not support 2D drawing.`);\r\n        }\r\n\r\n        this.roughCanvas = rough.canvas(this.canvas);\r\n        this.label = label;\r\n        this.hoverFill = hoverFill;\r\n        this.onClick = onClick;\r\n        this.bounds = { x, y, width, height };\r\n        this.hovered = false;\r\n\r\n        let buttons = buttonsByCanvas.get(this.canvas);\r\n        if (!buttons) {\r\n            buttons = [];\r\n            buttonsByCanvas.set(this.canvas, buttons);\r\n            this.canvas.addEventListener('mousemove', event => this.handleMouseMove(event));\r\n            this.canvas.addEventListener('mouseleave', () => this.handleMouseLeave());\r\n            this.canvas.addEventListener('click', event => {\r\n                const target = [...buttons].reverse().find(button => button.contains(event));\r\n                if (target) target.onClick();\r\n            });\r\n        }\r\n        buttons.push(this);\r\n\r\n        this.draw();\r\n    }\r\n\r\n    contains(event) {\r\n        const rect = this.canvas.getBoundingClientRect();\r\n        if (!rect.width || !rect.height) return false;\r\n\r\n        const x = (event.clientX - rect.left) * this.canvas.width / rect.width;\r\n        const y = (event.clientY - rect.top) * this.canvas.height / rect.height;\r\n        const { x: left, y: top, width, height } = this.bounds;\r\n\r\n        return x >= left && x <= left + width &&\r\n            y >= top && y <= top + height;\r\n    }\r\n\r\n    handleMouseMove(event) {\r\n        let changed = false;\r\n        let hoveredButton = false;\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            const hovered = button.contains(event);\r\n            if (hovered) hoveredButton = true;\r\n            if (button.hovered !== hovered) {\r\n                button.hovered = hovered;\r\n                changed = true;\r\n            }\r\n        }\r\n        this.canvas.style.cursor = hoveredButton ? 'pointer' : 'default';\r\n        if (changed) this.draw();\r\n    }\r\n\r\n    handleMouseLeave() {\r\n        let changed = false;\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            if (button.hovered) {\r\n                button.hovered = false;\r\n                changed = true;\r\n            }\r\n        }\r\n        this.canvas.style.cursor = 'default';\r\n        if (changed) this.draw();\r\n    }\r\n\r\n    draw() {\r\n        const context = this.context;\r\n        context.clearRect(0, 0, this.canvas.width, this.canvas.height);\r\n        for (const button of buttonsByCanvas.get(this.canvas)) {\r\n            button.drawButton();\r\n        }\r\n    }\r\n\r\n    drawButton() {\r\n        const { x, y, width, height } = this.bounds;\r\n        const { context } = this;\r\n        this.roughCanvas.rectangle(x, y, width, height, {\r\n            fill: this.hovered ? this.hoverFill : 'pink',\r\n            fillStyle: this.hovered ? 'cross-hatch' : 'hachure'\r\n        });\r\n\r\n        context.font = '16px \"Cabin Sketch\", cursive, sans-serif';\r\n        context.fillStyle = '#000000';\r\n        context.textAlign = 'center';\r\n        context.textBaseline = 'middle';\r\n        context.fillText(this.label, x + width / 2, y + height / 2);\r\n    }\r\n}\r",
+      "code": "class SketchButton extends RectItem {\n    static layer = 2;\n\n    constructor(canvasId, label, hoverFill, onClick, x, y, width = 200, height = 100) {\n        if (typeof onClick !== 'function') {\n            throw new TypeError('SketchButton onClick must be a function.');\n        }\n        super(canvasId, x, y, width, height, 'SketchButton');\n        this.label = label;\n        this.hoverFill = hoverFill;\n        this.onClick = onClick;\n        this.redraw();\n    }\n\n    bindEvents() {\n        super.bindEvents();\n        this.canvas.addEventListener('click', event => {\n            const target = this.topItemAt(event);\n            if (target) target.onClick();\n        });\n    }\n\n    paint() {\n        this.drawButton();\n    }\n\n    drawButton() {\n        const { x, y, width, height } = this.bounds;\n        const { context } = this;\n        this.roughCanvas.rectangle(x, y, width, height, {\n            fill: this.hovered ? this.hoverFill : 'pink',\n            fillStyle: this.hovered ? 'cross-hatch' : 'hachure'\n        });\n\n        context.font = '16px \"Cabin Sketch\", cursive, sans-serif';\n        context.fillStyle = '#000000';\n        context.textAlign = 'center';\n        context.textBaseline = 'middle';\n        context.fillText(this.label, x + width / 2, y + height / 2);\n    }\n}",
       "description": "Extracted class from file",
       "createdAt": 1792489103594,
-      "updatedAt": 1794395585774
+      "updatedAt": 1794401718884
     },
     {
       "id": "mvgibtsuhg0p1q",
@@ -446,19 +446,19 @@
       "id": "mvs39syxywjtw5",
       "name": "setupFillHoles",
       "type": "js",
-      "code": "function setupFillHoles() {\r\n    add_ball()\r\n\r\n    new Block('FillHoles', 'black', 100, 0, 50, 1000)\r\n    new Block('FillHoles', 'black', 900, 0, 50, 1000)\r\n\r\n    // Load three top blocks side by side.\r\n    for (let index = 0; index < 4; index++) {\r\n        new Block('FillHoles', 'yellow', 150 + index * (125+BALLS[0].diameter), 100, 115, 50);\r\n    }\r\n}\r",
+      "code": "function setupFillHoles() {\r\n    new FillHolesGame('FillHoles');\r\n}\r",
       "description": "Extracted function from file",
       "createdAt": 1793190411753,
-      "updatedAt": 1794395202502
+      "updatedAt": 1794397879389
     },
     {
       "id": "mw1xtuc86xa3vj",
       "name": "Block",
       "type": "js",
-      "code": "class Block {\r\n    constructor(canvasId, color, x, y, width = 200, height = 100, style='hachure') {\r\n        this.canvas = document.getElementById(canvasId);\r\n        if (!this.canvas) {\r\n            throw new Error(`Canvas \"${canvasId}\" was not found.`);\r\n        }\r\n\r\n        if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {\r\n            throw new RangeError('Block position and dimensions must be finite, with positive width and height.');\r\n        }\r\n\r\n        this.context = this.canvas.getContext('2d');\r\n        if (!this.context) {\r\n            throw new Error(`Canvas \"${canvasId}\" does not support 2D drawing.`);\r\n        }\r\n\r\n        this.roughCanvas = rough.canvas(this.canvas);\r\n        this.color = color;\r\n        this.bounds = { x, y, width, height };\r\n        this.style = style\r\n\r\n        let blocks = blocksByCanvas.get(this.canvas);\r\n        if (!blocks) {\r\n            blocks = [];\r\n            blocksByCanvas.set(this.canvas, blocks);\r\n        }\r\n        blocks.push(this);\r\n\r\n        this.draw();\r\n    }\r\n\r\n    draw() {\r\n        const { x, y, width, height } = this.bounds;\r\n        this.roughCanvas.rectangle(x, y, width, height, {\r\n            fill: this.color,\r\n            fillStyle: this.style\r\n        });\r\n    }\r\n\r\n    resolveCollision(baller, previousX, previousY) {\r\n        const { x, y, width, height } = this.bounds;\r\n        const radius = baller.diameter / 2;\r\n        const closestX = Math.max(x, Math.min(baller.start_x, x + width));\r\n        const closestY = Math.max(y, Math.min(baller.start_y, y + height));\r\n        let normal = {\r\n            x: baller.start_x - closestX,\r\n            y: baller.start_y - closestY\r\n        };\r\n        const distance = Math.hypot(normal.x, normal.y);\r\n\r\n        if (distance >= radius) return;\r\n\r\n        if (distance > 0) {\r\n            normal.x /= distance;\r\n            normal.y /= distance;\r\n            this.pushBallerOut(baller, normal, radius - distance);\r\n        } else {\r\n            normal = this.getCollisionNormal(baller, previousX, previousY);\r\n            this.positionBallerOutside(baller, normal, radius);\r\n        }\r\n\r\n        this.bounceBaller(baller, normal);\r\n    }\r\n\r\n    pushBallerOut(baller, normal, overlap) {\r\n        baller.start_x += normal.x * overlap;\r\n        baller.start_y += normal.y * overlap;\r\n    }\r\n\r\n    positionBallerOutside(baller, normal, radius) {\r\n        const { x, y, width, height } = this.bounds;\r\n        if (normal.x < 0) baller.start_x = x - radius;\r\n        if (normal.x > 0) baller.start_x = x + width + radius;\r\n        if (normal.y < 0) baller.start_y = y - radius;\r\n        if (normal.y > 0) baller.start_y = y + height + radius;\r\n    }\r\n\r\n    getCollisionNormal(baller, previousX, previousY) {\r\n        const { x, y, width, height } = this.bounds;\r\n        if (previousX <= x) return { x: -1, y: 0 };\r\n        if (previousX >= x + width) return { x: 1, y: 0 };\r\n        if (previousY <= y) return { x: 0, y: -1 };\r\n        if (previousY >= y + height) return { x: 0, y: 1 };\r\n\r\n        const distances = [\r\n            { distance: baller.start_x - (x - baller.diameter / 2), normal: { x: -1, y: 0 } },\r\n            { distance: x + width + baller.diameter / 2 - baller.start_x, normal: { x: 1, y: 0 } },\r\n            { distance: baller.start_y - (y - baller.diameter / 2), normal: { x: 0, y: -1 } },\r\n            { distance: y + height + baller.diameter / 2 - baller.start_y, normal: { x: 0, y: 1 } }\r\n        ];\r\n        return distances.reduce((nearest, candidate) =>\r\n            candidate.distance < nearest.distance ? candidate : nearest\r\n        ).normal;\r\n    }\r\n\r\n    bounceBaller(baller, normal) {\r\n        const velocityAlongNormal = baller.velocityX * normal.x + baller.velocityY * normal.y;\r\n        if (velocityAlongNormal < 0) {\r\n            const bounceStrength = (1 + baller.physics.restitution) * velocityAlongNormal;\r\n            baller.velocityX -= bounceStrength * normal.x;\r\n            baller.velocityY -= bounceStrength * normal.y;\r\n        }\r\n    }\r\n}\r",
+      "code": "class Block extends RectItem {\n    static layer = 1;\n\n    constructor(canvasId, color, x, y, width = 200, height = 100, style = 'hachure') {\n        super(canvasId, x, y, width, height, 'Block');\n        this.color = color;\n        this.style = style;\n        this.seed = Math.floor(Math.random() * 2 ** 31); // keeps the sketchy look stable between redraws\n        this.redraw();\n    }\n\n    bindEvents() {} // blocks are not interactive\n\n    paint() {\n        const { x, y, width, height } = this.bounds;\n        this.roughCanvas.rectangle(x, y, width, height, {\n            fill: this.color,\n            fillStyle: this.style,\n            seed: this.seed\n        });\n    }\n\n    resolveCollision(baller, previousX, previousY) {\n        const { x, y, width, height } = this.bounds;\n        const radius = baller.diameter / 2;\n        const closestX = Math.max(x, Math.min(baller.start_x, x + width));\n        const closestY = Math.max(y, Math.min(baller.start_y, y + height));\n        let normal = {\n            x: baller.start_x - closestX,\n            y: baller.start_y - closestY\n        };\n        const distance = Math.hypot(normal.x, normal.y);\n\n        if (distance >= radius) return;\n\n        if (distance > 0) {\n            normal.x /= distance;\n            normal.y /= distance;\n            this.pushBallerOut(baller, normal, radius - distance);\n        } else {\n            normal = this.getCollisionNormal(baller, previousX, previousY);\n            this.positionBallerOutside(baller, normal, radius);\n        }\n\n        this.bounceBaller(baller, normal);\n    }\n\n    pushBallerOut(baller, normal, overlap) {\n        baller.start_x += normal.x * overlap;\n        baller.start_y += normal.y * overlap;\n    }\n\n    positionBallerOutside(baller, normal, radius) {\n        const { x, y, width, height } = this.bounds;\n        if (normal.x < 0) baller.start_x = x - radius;\n        if (normal.x > 0) baller.start_x = x + width + radius;\n        if (normal.y < 0) baller.start_y = y - radius;\n        if (normal.y > 0) baller.start_y = y + height + radius;\n    }\n\n    getCollisionNormal(baller, previousX, previousY) {\n        const { x, y, width, height } = this.bounds;\n        if (previousX <= x) return { x: -1, y: 0 };\n        if (previousX >= x + width) return { x: 1, y: 0 };\n        if (previousY <= y) return { x: 0, y: -1 };\n        if (previousY >= y + height) return { x: 0, y: 1 };\n\n        const distances = [\n            { distance: baller.start_x - (x - baller.diameter / 2), normal: { x: -1, y: 0 } },\n            { distance: x + width + baller.diameter / 2 - baller.start_x, normal: { x: 1, y: 0 } },\n            { distance: baller.start_y - (y - baller.diameter / 2), normal: { x: 0, y: -1 } },\n            { distance: y + height + baller.diameter / 2 - baller.start_y, normal: { x: 0, y: 1 } }\n        ];\n        return distances.reduce((nearest, candidate) =>\n            candidate.distance < nearest.distance ? candidate : nearest\n        ).normal;\n    }\n\n    bounceBaller(baller, normal) {\n        const velocityAlongNormal = baller.velocityX * normal.x + baller.velocityY * normal.y;\n        if (velocityAlongNormal < 0) {\n            const bounceStrength = (1 + baller.physics.restitution) * velocityAlongNormal;\n            baller.velocityX -= bounceStrength * normal.x;\n            baller.velocityY -= bounceStrength * normal.y;\n        }\n    }\n}",
       "description": "Extracted class from file",
       "createdAt": 1793785930712,
-      "updatedAt": 1794395202465
+      "updatedAt": 1794401718894
     },
     {
       "id": "mw1xyw37gj0fcf",
@@ -473,10 +473,10 @@
       "id": "mw4x1jv21d98ds",
       "name": "update",
       "type": "js",
-      "code": "function update() {\r\n    for (let index = BALLS.length - 1; index >= 0; index--) {\r\n        const ball = BALLS[index];\r\n        if (!ball.despawned && !ball.isStuck) continue;\r\n\r\n        if (ball.isStuck) {\r\n            const radius = ball.diameter / 2;\r\n            new Block(\r\n                ball.canvas.id,\r\n                ball.color,\r\n                ball.start_x - radius,\r\n                ball.start_y - radius,\r\n                ball.diameter,\r\n                ball.diameter,\r\n                ball.drawnstyle\r\n            );\r\n        }\r\n\r\n        BALLS.splice(index, 1);\r\n        const ballers = ballersByCanvas.get(ball.canvas);\r\n        const ballerIndex = ballers.indexOf(ball);\r\n        if (ballerIndex !== -1) ballers.splice(ballerIndex, 1);\r\n        add_ball();\r\n    }\r\n}",
-      "description": "Extracted function from file",
+      "code": "        update(dt) {\n            if (this.state !== 'playing') return;\n            let ix = 0, iy = 0;\n            const k = this.keys;\n            if (k.has('arrowleft') || k.has('a')) ix -= 1;\n            if (k.has('arrowright') || k.has('d')) ix += 1;\n            if (k.has('arrowup') || k.has('w')) iy -= 1;\n            if (k.has('arrowdown') || k.has('s')) iy += 1;\n            if (ix || iy) {\n                const len = Math.hypot(ix, iy);\n                const step = SPEED * dt;\n                // small sub-steps so the ball can never tunnel through a wall\n                const n = Math.ceil(step / 5);\n                for (let i = 0; i < n; i++) {\n                    this.x += ix / len * step / n;\n                    this.y += iy / len * step / n;\n                    this.collide();\n                }\n            }\n            if (this.touches(DEATH)) {\n                this.state = 'dead';\n                msg.textContent = 'You went all the way left... you died. Press R to retry.';\n            } else if (this.touches(FINISH)) {\n                this.state = 'won';\n                msg.textContent = 'You finished! Press R to play again.';\n            }\n        },",
+      "description": "Extracted method from file",
       "createdAt": 1793966009294,
-      "updatedAt": 1794395202519
+      "updatedAt": 1794400695901
     },
     {
       "id": "mw4xbn3sxk8g0z",
@@ -495,6 +495,645 @@
       "description": "Extracted method from file",
       "createdAt": 1793966536286,
       "updatedAt": 1793966536286
+    },
+    {
+      "id": "mwc1tytggpkouk",
+      "name": "getCanvasState",
+      "type": "js",
+      "code": "function getCanvasState(canvas) {\n    let state = canvasStates.get(canvas);\n    if (!state) {\n        state = { groups: new Map(), dragging: null, animating: false };\n        canvasStates.set(canvas, state);\n    }\n    return state;\n}",
+      "description": "Extracted function from file",
+      "createdAt": 1794397316740,
+      "updatedAt": 1794401718837
+    },
+    {
+      "id": "mwc1tytx2w1ybs",
+      "name": "CanvasItem",
+      "type": "js",
+      "code": "class CanvasItem {\n    static layer = 0;          // lower layers are painted first\n    hoverCursor = 'pointer';\n\n    constructor(canvasId, group = this.constructor.name) {\n        this.canvas = document.getElementById(canvasId);\n        if (!this.canvas) {\n            throw new Error(`Canvas \"${canvasId}\" was not found.`);\n        }\n        this.context = this.canvas.getContext('2d');\n        if (!this.context) {\n            throw new Error(`Canvas \"${canvasId}\" does not support 2D drawing.`);\n        }\n        this.roughCanvas = rough.canvas(this.canvas);\n        this.hovered = false;\n        this.group = group;\n\n        const state = getCanvasState(this.canvas);\n        let isNewGroup = false;\n        if (!state.groups.has(group)) {\n            state.groups.set(group, []);\n            isNewGroup = true;\n        }\n        state.groups.get(group).push(this);\n        if (isNewGroup) this.bindEvents();\n    }\n\n    // ---- registry ----\n    siblings() {\n        return getCanvasState(this.canvas).groups.get(this.group);\n    }\n\n    allItems() {\n        const items = [];\n        for (const list of getCanvasState(this.canvas).groups.values()) items.push(...list);\n        return items;\n    }\n\n    unregister() {\n        const list = this.siblings();\n        const index = list.indexOf(this);\n        if (index !== -1) list.splice(index, 1);\n    }\n\n    // ---- drawing ----\n    paint() {}\n    paintOverlay() {}\n\n    redraw() {\n        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);\n        const items = this.allItems().sort((a, b) => a.constructor.layer - b.constructor.layer);\n        for (const item of items) item.paint();\n        for (const item of items) item.paintOverlay();\n    }\n\n    draw() {\n        this.redraw();\n    }\n\n    // ---- hit testing ----\n    isActive() {\n        return true;\n    }\n\n    containsPoint(x, y) {\n        return false;\n    }\n\n    canvasPoint(event) {\n        const rect = this.canvas.getBoundingClientRect();\n        return {\n            x: (event.clientX - rect.left) * this.canvas.width / rect.width,\n            y: (event.clientY - rect.top) * this.canvas.height / rect.height\n        };\n    }\n\n    contains(event) {\n        const rect = this.canvas.getBoundingClientRect();\n        if (!rect.width || !rect.height) return false;\n        const { x, y } = this.canvasPoint(event);\n        return this.containsPoint(x, y);\n    }\n\n    // ---- hover ----\n    bindEvents() {\n        this.canvas.addEventListener('mousemove', event => this.handleMouseMove(event));\n        this.canvas.addEventListener('mouseleave', () => this.handleMouseLeave());\n    }\n\n    // Topmost active item of this group under the mouse.\n    topItemAt(event) {\n        return [...this.siblings()].reverse().find(item => item.isActive() && item.contains(event));\n    }\n\n    handleMouseMove(event) {\n        const top = this.topItemAt(event);\n        let changed = false;\n        for (const item of this.siblings()) {\n            const hovered = item === top;\n            if (item.hovered !== hovered) {\n                item.hovered = hovered;\n                changed = true;\n            }\n        }\n        this.canvas.style.cursor = top ? this.hoverCursor : 'default';\n        if (changed) this.redraw();\n    }\n\n    handleMouseLeave() {\n        let changed = false;\n        for (const item of this.siblings()) {\n            if (item.hovered) {\n                item.hovered = false;\n                changed = true;\n            }\n        }\n        this.canvas.style.cursor = 'default';\n        if (changed) this.redraw();\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794397316757,
+      "updatedAt": 1794401718852
+    },
+    {
+      "id": "mwc1tyuc615qes",
+      "name": "RectItem",
+      "type": "js",
+      "code": "class RectItem extends CanvasItem {\n    constructor(canvasId, x, y, width, height, group) {\n        if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {\n            throw new RangeError(`${new.target.name} position and dimensions must be finite, with positive width and height.`);\n        }\n        super(canvasId, group);\n        this.bounds = { x, y, width, height };\n    }\n\n    containsPoint(px, py) {\n        const { x, y, width, height } = this.bounds;\n        return px >= x && px <= x + width && py >= y && py <= y + height;\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794397316772,
+      "updatedAt": 1794401718864
+    },
+    {
+      "id": "mwc1tyvl834lam",
+      "name": "LaunchBall",
+      "type": "js",
+      "code": "class LaunchBall extends CanvasItem {\n    static layer = 0;\n\n    constructor(diameter, color, drawnstyle = 'hachure', start_x = 0, start_y = 0, despawned = false, canvasId = 'FillHoles', physics) {\n        if (!Number.isFinite(diameter) || diameter <= 0 ||\n            !Number.isFinite(start_x) || !Number.isFinite(start_y)) {\n            throw new RangeError('Baller diameter and position must be finite, with a positive diameter.');\n        }\n        LaunchBall.validatePhysics(physics);\n\n        super(canvasId, 'LaunchBall');\n        this.hoverCursor = 'crosshair';\n        this.diameter = diameter;\n        this.color = color;\n        this.drawnstyle = drawnstyle;\n        this.start_x = start_x;\n        this.start_y = start_y;\n        this.despawned = despawned;\n        this.isStuck = false;\n        this.physics = { ...physics };\n        this.changed = false;\n        this.hasDragLine = false;\n        this.velocityX = 0;\n        this.velocityY = 0;\n        this.isMoving = false;\n        this.game = null; // set by MiniGame.addBall\n\n        this.redraw();\n    }\n\n    static validatePhysics(physics) {\n        const physicsValues = [\n            physics?.gravity,\n            physics?.launchSpeedPerPixel,\n            physics?.maximumLaunchSpeed,\n            physics?.restitution,\n            physics?.maximumFrameDelta,\n            physics?.collisionStepDistance\n        ];\n        if (!physicsValues.every(Number.isFinite) ||\n            physics.gravity < 0 ||\n            physics.launchSpeedPerPixel <= 0 ||\n            physics.maximumLaunchSpeed <= 0 ||\n            physics.restitution < 0 || physics.restitution > 1 ||\n            physics.maximumFrameDelta <= 0 ||\n            physics.collisionStepDistance <= 0) {\n            throw new RangeError('Baller physics requires finite values, positive speed and step limits, non-negative gravity, and restitution between 0 and 1.');\n        }\n    }\n\n    // ---- hooks ----\n    isInBlockHole(blocks) {\n        return false;\n    }\n\n    onFrame() {\n        if (this.game) this.game.update();\n    }\n\n    blocks() {\n        return getCanvasState(this.canvas).groups.get('Block') || [];\n    }\n\n    // ---- state ----\n    isActive() {\n        return !this.despawned && !this.isStuck;\n    }\n\n    containsPoint(px, py) {\n        const radius = this.diameter / 2;\n        const dx = px - this.start_x;\n        const dy = py - this.start_y;\n        return dx * dx + dy * dy <= radius * radius;\n    }\n\n    // ---- drawing ----\n    paint() {\n        if (!this.isActive()) return;\n        this.roughCanvas.circle(this.start_x, this.start_y, this.diameter, {\n            fill: this.color,\n            fillStyle: this.hovered || this.changed ? 'zigzag' : this.drawnstyle\n        });\n    }\n\n    paintOverlay() {\n        if (this.isActive() && this.hasDragLine) {\n            this.roughCanvas.line(\n                this.start_x, this.start_y, this.lineEndX, this.lineEndY,\n                { stroke: this.color, strokeWidth: 2 }\n            );\n        }\n    }\n\n    spawn() {\n        this.paint();\n    }\n\n    despawn() {\n        this.despawned = true;\n        this.redraw();\n    }\n\n    // ---- physics ----\n    update(deltaTime) {\n        if (!this.isMoving) return false;\n\n        const frameDelta = Math.min(deltaTime, this.physics.maximumFrameDelta);\n        const speed = Math.hypot(this.velocityX, this.velocityY);\n        const stepCount = Math.max(1, Math.ceil(\n            speed * frameDelta / this.physics.collisionStepDistance\n        ));\n        const stepDelta = frameDelta / stepCount;\n        const blocks = this.blocks();\n\n        for (let step = 0; step < stepCount; step++) {\n            const previousX = this.start_x;\n            const previousY = this.start_y;\n            this.applyGravity(stepDelta);\n            this.move(stepDelta);\n            this.resolveBlockCollisions(blocks, previousX, previousY);\n            if (this.isInBlockHole(blocks)) {\n                this.velocityX = 0;\n                this.velocityY = 0;\n                this.isMoving = false;\n                this.isStuck = true;\n                this.hovered = false;\n                this.changed = false;\n                this.hasDragLine = false;\n                return false;\n            }\n        }\n\n        if (this.isOutsideCanvas()) {\n            this.despawn();\n            this.isMoving = false;\n            return false;\n        }\n\n        return true;\n    }\n\n    applyGravity(deltaTime) {\n        this.velocityY += this.physics.gravity * deltaTime;\n    }\n\n    move(deltaTime) {\n        this.start_x += this.velocityX * deltaTime;\n        this.start_y += this.velocityY * deltaTime;\n    }\n\n    resolveBlockCollisions(blocks, previousX, previousY) {\n        for (const block of blocks) {\n            block.resolveCollision(this, previousX, previousY);\n        }\n    }\n\n    isOutsideCanvas() {\n        const radius = this.diameter / 2;\n        return this.start_x + radius < 0 ||\n            this.start_x - radius > this.canvas.width ||\n            this.start_y + radius < 0 ||\n            this.start_y - radius > this.canvas.height;\n    }\n\n    shoot(targetX, targetY) {\n        const directionX = targetX - this.start_x;\n        const directionY = targetY - this.start_y;\n        const distance = Math.hypot(directionX, directionY);\n        if (distance === 0) return;\n\n        const speed = Math.min(\n            distance * this.physics.launchSpeedPerPixel,\n            this.physics.maximumLaunchSpeed\n        );\n        this.velocityX = -directionX / distance * speed;\n        this.velocityY = -directionY / distance * speed;\n        this.isMoving = true;\n        this.startAnimation();\n    }\n\n    startAnimation() {\n        const state = getCanvasState(this.canvas);\n        if (state.animating) return;\n\n        state.animating = true;\n        let lastTimestamp;\n        const animate = timestamp => {\n            const deltaTime = lastTimestamp === undefined\n                ? 0\n                : (timestamp - lastTimestamp) / 1000;\n            lastTimestamp = timestamp;\n\n            let hasMovingBaller = false;\n            for (const baller of [...this.siblings()]) {\n                if (baller.update(deltaTime)) hasMovingBaller = true;\n            }\n            this.onFrame();\n            this.redraw();\n\n            if (hasMovingBaller) {\n                requestAnimationFrame(animate);\n            } else {\n                state.animating = false;\n            }\n        };\n        requestAnimationFrame(animate);\n    }\n\n    // ---- drag to launch ----\n    bindEvents() {\n        super.bindEvents();\n        this.canvas.addEventListener('mousedown', event => this.handleMouseDown(event));\n        window.addEventListener('mousemove', event => this.handleDragMove(event));\n        window.addEventListener('mouseup', event => this.handleMouseUp(event));\n    }\n\n    handleDragMove(event) {\n        const state = getCanvasState(this.canvas);\n        const baller = state.dragging;\n        if (!baller || !baller.isActive()) return;\n\n        const point = baller.canvasPoint(event);\n        baller.lineEndX = point.x;\n        baller.lineEndY = point.y;\n        baller.hasDragLine = true;\n        this.redraw();\n    }\n\n    handleMouseDown(event) {\n        if (event.button !== 0) return;\n\n        const baller = [...this.siblings()].reverse().find(candidate =>\n            candidate.isActive() && !candidate.isMoving && candidate.contains(event)\n        );\n        if (!baller) return;\n\n        const point = baller.canvasPoint(event);\n        baller.changed = true;\n        baller.dragStartX = point.x;\n        baller.dragStartY = point.y;\n        baller.hasDragLine = false;\n        getCanvasState(this.canvas).dragging = baller;\n        this.canvas.style.cursor = 'crosshair';\n        this.redraw();\n    }\n\n    handleMouseUp(event) {\n        const state = getCanvasState(this.canvas);\n        const baller = state.dragging;\n        if (!baller) return;\n        state.dragging = null;\n\n        if (!baller.isActive()) return;\n\n        baller.changed = false;\n        baller.hovered = false;\n        baller.hasDragLine = false;\n        const target = event\n            ? baller.canvasPoint(event)\n            : { x: baller.lineEndX || baller.start_x, y: baller.lineEndY || baller.start_y };\n        baller.shoot(target.x, target.y);\n        this.redraw();\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794397316817,
+      "updatedAt": 1794401718911
+    },
+    {
+      "id": "mwc1tyvzyyzwcd",
+      "name": "MiniGame",
+      "type": "js",
+      "code": "class MiniGame {\n    constructor(canvasId) {\n        this.canvasId = canvasId;\n        this.balls = [];\n        this.setup();\n    }\n\n    setup() {}\n    update() {}\n\n    addBlock(color, x, y, width, height, style) {\n        return new Block(this.canvasId, color, x, y, width, height, style);\n    }\n\n    clearBlocks() {\n        const blocks = getCanvasState(document.getElementById(this.canvasId)).groups.get('Block') || [];\n        blocks.length = 0;\n    }\n\n    addBall(ball) {\n        ball.game = this;\n        this.balls.push(ball);\n        return ball;\n    }\n\n    removeBall(ball) {\n        const index = this.balls.indexOf(ball);\n        if (index !== -1) this.balls.splice(index, 1);\n        ball.unregister();\n    }\n\n    // Turns a stuck ball into a block of the same colour and removes the ball.\n    // Returns the new block, or null if the ball was not stuck.\n    freezeBall(ball) {\n        let block = null;\n        if (ball.isStuck) {\n            const radius = ball.diameter / 2;\n            block = this.addBlock(\n                ball.color,\n                ball.start_x - radius,\n                ball.start_y - radius,\n                ball.diameter,\n                ball.diameter,\n                ball.drawnstyle\n            );\n        }\n        this.removeBall(ball);\n        return block;\n    }\n\n    // Walks the balls and returns those that stuck or despawned (and removes them from play).\n    // `onStuck(ball)` / `onDespawn(ball)` are optional callbacks.\n    collectFinishedBalls(onStuck, onDespawn) {\n        for (let index = this.balls.length - 1; index >= 0; index--) {\n            const ball = this.balls[index];\n            if (ball.isActive()) continue;\n            const stuck = ball.isStuck;\n            this.freezeBall(ball);\n            if (stuck) onStuck?.(ball);\n            else onDespawn?.(ball);\n        }\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794397316831,
+      "updatedAt": 1794401719083
+    },
+    {
+      "id": "mwc1u518d25kyt",
+      "name": ".flowchart-canvas",
+      "type": "css",
+      "code": ".flowchart-canvas {\r\n  background: #f3f5f7;\r\n  background-image: radial-gradient(#d5dde4 1px, transparent 1px);\r\n  background-size: 18px 18px;\r\n  border-radius: 16px;\r\n  padding: 1.35rem 1.15rem 1.1rem;\r\n  margin: 0.5rem 0 0;\r\n  overflow: hidden;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324796,
+      "updatedAt": 1794397324796
+    },
+    {
+      "id": "mwc1u51vphrjfw",
+      "name": ".flowchart-title",
+      "type": "css",
+      "code": ".flowchart-title {\r\n  font-size: 1.05rem;\r\n  font-weight: 400;\r\n  color: #5c6b76;\r\n  margin: 0 0 0.85rem 0.35rem;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324819,
+      "updatedAt": 1794397324819
+    },
+    {
+      "id": "mwc1u52fqhmr2c",
+      "name": ".flowchart",
+      "type": "css",
+      "code": ".flowchart {\r\n  margin: 0;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324839,
+      "updatedAt": 1794397324839
+    },
+    {
+      "id": "mwc1u530fnyvm6",
+      "name": ".flowchart-canvas svg",
+      "type": "css",
+      "code": ".flowchart-canvas svg {\r\n  display: block;\r\n  max-width: 100%;\r\n  height: auto;\r\n  margin: 0 auto;\r\n  overflow: visible;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324860,
+      "updatedAt": 1794397324860
+    },
+    {
+      "id": "mwc1u53m97s06f",
+      "name": ".flowchart .flowchartTitleText",
+      "type": "css",
+      "code": ".flowchart .flowchartTitleText {\r\n  font-family: Inter, system-ui, sans-serif !important;\r\n  font-size: 20px !important;\r\n  fill: #44515c !important;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324882,
+      "updatedAt": 1794397324882
+    },
+    {
+      "id": "mwc1u5461yw838",
+      "name": ".flowchart .label",
+      "type": "css",
+      "code": ".flowchart .label {\r\n  font-family: Inter, system-ui, sans-serif !important;\r\n  font-size: 13px !important;\r\n  color: #44515c !important;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324902,
+      "updatedAt": 1794397324902
+    },
+    {
+      "id": "mwc1u54mmhlff1",
+      "name": ".flowchart .edgeLabel",
+      "type": "css",
+      "code": ".flowchart .edgeLabel {\r\n  background-color: #f3f5f7 !important;\r\n  color: #6a7d8c !important;\r\n  font-size: 12px !important;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324918,
+      "updatedAt": 1794397324918
+    },
+    {
+      "id": "mwc1u5510jfgjc",
+      "name": ".flowchart .cluster rect",
+      "type": "css",
+      "code": ".flowchart .cluster rect {\r\n  fill: none !important;\r\n  stroke: none !important;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324933,
+      "updatedAt": 1794397324933
+    },
+    {
+      "id": "mwc1u55gb8p8nr",
+      "name": ".flowchart .cluster span",
+      "type": "css",
+      "code": ".flowchart .cluster span {\r\n  display: none;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794397324948,
+      "updatedAt": 1794397324948
+    },
+    {
+      "id": "mwc1u55tzj5gpj",
+      "name": "@media",
+      "type": "css",
+      "code": "@media print {\r\n  .flowchart-canvas, .flowchart { break-inside: avoid; }\r\n}\r",
+      "description": "Extracted media query from file",
+      "createdAt": 1794397324961,
+      "updatedAt": 1794397324961
+    },
+    {
+      "id": "mwc20zrbx2hqpm",
+      "name": "FillHolesGame",
+      "type": "js",
+      "code": "class FillHolesGame extends MiniGame {\r\n    setup() {\r\n        this.spawnBall();\r\n\r\n        this.addBlock('black', 100, 0, 50, 1000);\r\n        this.addBlock('black', 900, 0, 50, 1000);\r\n\r\n        for (let index = 0; index < 4; index++) {\r\n            this.addBlock('yellow', 150 + index * (125 + this.balls[0].diameter), 100, 115, 50);\r\n        }\r\n    }\r\n\r\n    spawnBall() {\r\n        const color = random(BALL_COLOR_ARRAY);\r\n        this.addBall(new Baller(60, color, 'hachure', 500, 600, false, this.canvasId, BALL_PHYSICS));\r\n    }\r\n\r\n    update() {\r\n        this.collectFinishedBalls(() => this.spawnBall(), () => this.spawnBall());\r\n    }\r\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794397644551,
+      "updatedAt": 1794397644551
+    },
+    {
+      "id": "mwc218f5eptjk5",
+      "name": "MazeHaze",
+      "type": "js",
+      "code": "class MazeHaze extends MiniGame {\r\n    setup() {\r\n        this.spawnBall();\r\n\r\n        this.addBlock('black', 100, 0, 50, 1000);\r\n        this.addBlock('black', 900, 0, 50, 1000);\r\n\r\n        for (let index = 0; index < 4; index++) {\r\n            this.addBlock('yellow', 150 + index * (125 + this.balls[0].diameter), 100, 115, 50);\r\n        }\r\n    }\r\n\r\n    spawnBall() {\r\n        const color = random(BALL_COLOR_ARRAY);\r\n        this.addBall(new Baller(60, color, 'hachure', 500, 600, false, this.canvasId, BALL_PHYSICS));\r\n    }\r\n\r\n    update() {\r\n        this.collectFinishedBalls(() => this.spawnBall(), () => this.spawnBall());\r\n    }\r\n}\r",
+      "description": "Extracted class from file",
+      "createdAt": 1794397655777,
+      "updatedAt": 1794398085869
+    },
+    {
+      "id": "mwc265qhpjbrla",
+      "name": "setupMazeHaze",
+      "type": "js",
+      "code": "function setupMazeHaze() {\n    new MazeHazeGame('MazeHaze');\n}",
+      "description": "Extracted function from file",
+      "createdAt": 1794397885577,
+      "updatedAt": 1794400968516
+    },
+    {
+      "id": "mwc377ws1ycqr6",
+      "name": "Goal",
+      "type": "js",
+      "code": "class Goal extends RectItem {\n    static layer = 1;\n\n    constructor(canvasId, x, y, size) {\n        super(canvasId, x, y, size, size, 'Goal');\n        this.level = 1;\n        this.seed = Math.floor(Math.random() * 2 ** 31);\n    }\n\n    bindEvents() {}\n\n    moveTo(x, y) {\n        this.bounds.x = x;\n        this.bounds.y = y;\n    }\n\n    reached(ball) {\n        const { x, y, width, height } = this.bounds;\n        return ball.start_x > x && ball.start_x < x + width &&\n            ball.start_y > y && ball.start_y < y + height;\n    }\n\n    paint() {\n        const { x, y, width, height } = this.bounds;\n        this.roughCanvas.rectangle(x, y, width, height, {\n            fill: 'limegreen', fillStyle: 'zigzag', seed: this.seed\n        });\n    }\n\n    paintOverlay() {\n        this.context.font = '20px \"Cabin Sketch\", cursive, sans-serif';\n        this.context.fillStyle = '#000000';\n        this.context.textAlign = 'left';\n        this.context.textBaseline = 'top';\n        this.context.fillText(`Level ${this.level} - arrows / WASD to move`, 10, 10);\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794399614668,
+      "updatedAt": 1794399739164
+    },
+    {
+      "id": "mwc377xfi2ik1z",
+      "name": "MazeHazeGame",
+      "type": "js",
+      "code": "class MazeHazeGame extends MiniGame {\n    setup() {\n        const id = this.canvasId;\n        this.state = 'ready'; // ready -> playing -> won | dead\n        this.startTime = 0;\n        this.elapsed = 0;\n        this.points = 0;\n        this.message = '';\n\n        // Slabs: [x, y(top), width, height]\n        const walls = [\n            [0, 0, 20, 1000], [980, 0, 20, 1000],      // outer walls\n            [20, 960, 960, 40],                        // floor (level 1)\n            [20, 830, 360, 20], [620, 830, 360, 20],   // two ways up; left one is the \"stupid\" hall\n            [20, 700, 600, 20],                        // hall ceiling + next jump\n            [20, 570, 280, 20],                        // jump above the hall\n            [340, 440, 180, 20],                       // last jump: island\n            [20, 440, 240, 20],                        // left: spike trap\n            [620, 440, 360, 20]                        // right: finish\n        ];\n        for (const [x, y, w, h] of walls) this.addBlock('saddlebrown', x, y, w, h);\n        for (const [x, y, w, h] of [[20, 0, 960, 20]]) this.addBlock('black', x, y, w, h);\n\n        this.spikes = new Spikes(id, 60, 410, 190, 30);\n        this.finish = new FinishLine(id, 910, 370, 60, 70);\n\n        new TextLabel(id, 'stupid ;)', 60, 790, { size: 30 });\n        new TextLabel(id, \"F you ';).\", 140, 370, { size: 30, color: 'darkred' });\n        new TextLabel(id, 'victory.', 800, 400, { size: 30, color: 'darkgreen' });\n\n        new TextLabel(id, () => this.state === 'ready'\n            ? 'Move: A / D or arrows   Jump: W / Up / Space' : `Time: ${Math.max(0, MAZE_TIME_LIMIT - this.elapsed).toFixed(1)}`,\n            40, 50, { size: 24 });\n        new TextLabel(id, () => this.message, 500, 250, { size: 44, align: 'center' });\n\n        this.ball = this.addBall(new PlatformBall(40, 'orange', 'hachure', 500, 935, id));\n        window.addEventListener('keydown', event => {\n            const canvas = document.getElementById(id);\n            if (canvas.offsetParent === null) return;\n            if (['dead', 'won'].includes(this.state) && ['r', 'enter'].includes(event.key.toLowerCase())) {\n                this.restart();\n            }\n        });\n        this.ball.startAnimation();\n        this.setupDifficulty();\n    }\n\n    // Difficulty: easy = no clip mask, normal = big mask, hard = small mask.\n    setupDifficulty() {\n        this.difficulty = 'normal';\n        const canvas = document.getElementById(this.canvasId);\n        const buttons = document.querySelectorAll('.maze-bar button[data-diff]');\n        buttons.forEach(button => button.addEventListener('click', () => {\n            this.difficulty = button.dataset.diff;\n            buttons.forEach(b => b.classList.toggle('active', b === button));\n            button.blur(); // keep Space / arrows for the game\n        }));\n\n        const applyMask = () => {\n            const radius = MAZE_MASK_RADIUS[this.difficulty];\n            const clip = radius === null ? 'none' : `circle(${radius * canvas.clientWidth / canvas.width}px at ` +\n                `${this.ball.start_x * canvas.clientWidth / canvas.width}px ` +\n                `${this.ball.start_y * canvas.clientHeight / canvas.height}px)`;\n            canvas.style.webkitClipPath = clip;\n            canvas.style.clipPath = clip;\n            requestAnimationFrame(applyMask);\n        };\n        applyMask();\n    }\n\n    restart() {\n        this.state = 'ready';\n        this.message = '';\n        this.elapsed = 0;\n        this.points = 0;\n        this.ball.reset();\n    }\n\n    die(reason) {\n        this.state = 'dead';\n        this.points = 0;\n        this.ball.enabled = false;\n        this.message = `${reason}\\nGame over - 0 points\\n(press R to retry)`;\n    }\n\n    win() {\n        this.state = 'won';\n        this.ball.enabled = false;\n        this.points = Math.round(MAZE_MAX_POINTS * (1 - this.elapsed / MAZE_TIME_LIMIT));\n        this.message = `Victory!\\nTime: ${this.elapsed.toFixed(2)}s  Points: ${this.points}\\n(press R to play again)`;\n    }\n\n    // Runs every animation frame.\n    update() {\n        if (this.state === 'ready') {\n            if (this.ball.keys.size === 0) return;\n            this.state = 'playing';\n            this.startTime = performance.now();\n        }\n        if (this.state !== 'playing') return;\n\n        this.elapsed = (performance.now() - this.startTime) / 1000;\n        if (this.spikes.touches(this.ball)) this.die(\"F you ';).\");\n        else if (this.finish.touches(this.ball)) this.win();\n        else if (this.elapsed >= MAZE_TIME_LIMIT) this.die(\"Dead-end, so bend-over!\");\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794399614691,
+      "updatedAt": 1794400968495
+    },
+    {
+      "id": "mwc3fo6ga3k66b",
+      "name": "Spikes",
+      "type": "js",
+      "code": "class Spikes extends Zone {\n    constructor(canvasId, x, y, width, height) {\n        super(canvasId, x, y, width, height, 'Spikes');\n    }\n\n    paint() {\n        const { x, y, width, height } = this.bounds;\n        const count = Math.max(1, Math.round(width / 20));\n        const w = width / count;\n        for (let i = 0; i < count; i++) {\n            this.roughCanvas.polygon(\n                [[x + i * w, y + height], [x + i * w + w / 2, y], [x + (i + 1) * w, y + height]],\n                { fill: 'red', fillStyle: 'solid', seed: this.seed + i }\n            );\n        }\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794400009000,
+      "updatedAt": 1794400968449
+    },
+    {
+      "id": "mwc3fo70lx3xa1",
+      "name": "FinishLine",
+      "type": "js",
+      "code": "class FinishLine extends Zone {\n    constructor(canvasId, x, y, width, height) {\n        super(canvasId, x, y, width, height, 'FinishLine');\n    }\n\n    paint() {\n        const { x, y, width, height } = this.bounds;\n        this.roughCanvas.rectangle(x, y, width, height, {\n            fill: 'gold', fillStyle: 'cross-hatch', seed: this.seed\n        });\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794400009020,
+      "updatedAt": 1794400968478
+    },
+    {
+      "id": "mwc3lkj81910yn",
+      "name": ".logo",
+      "type": "css",
+      "code": ".logo {\r\n    position: absolute;\r\n\r\n    top: 50%;\r\n    left: 50%;\r\n\r\n    transform: translate(-50%, -50%);\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284212,
+      "updatedAt": 1794401367126
+    },
+    {
+      "id": "mwc3lkjoy1mfsd",
+      "name": ".logo img",
+      "type": "css",
+      "code": ".logo img {\r\n    width: 600px;\r\n    max-width: 300vw;\r\n    height: auto;\r\n\r\n    display: block;\r\n    object-fit: contain;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284228,
+      "updatedAt": 1794401367150
+    },
+    {
+      "id": "mwc3lkk1l0mbre",
+      "name": ".loading_circle",
+      "type": "css",
+      "code": ".loading_circle {\r\n    position: absolute;\r\n\r\n    bottom: 30px;\r\n    right: 30px;\r\n\r\n    width: 35px;\r\n    height: 35px;\r\n\r\n    border: 4px solid #444;\r\n    border-top: 4px solid white;\r\n\r\n    border-radius: 50%;\r\n\r\n    animation: spin 0.8s linear infinite;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284241,
+      "updatedAt": 1794401367174
+    },
+    {
+      "id": "mwc3lkkifjeci5",
+      "name": "spin",
+      "type": "css",
+      "code": "@keyframes spin {\r\n    from {\r\n        transform: rotate(0deg);\r\n    }\r\n\r\n    to {\r\n        transform: rotate(360deg);\r\n    }\r\n}\r",
+      "description": "Extracted keyframes from file",
+      "createdAt": 1794400284258,
+      "updatedAt": 1794401367196
+    },
+    {
+      "id": "mwc3lkkwac746f",
+      "name": "#page2.hidden",
+      "type": "css",
+      "code": "#page2.hidden {\r\n    opacity: 0;\r\n    visibility: hidden;\r\n    pointer-events: none;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284272,
+      "updatedAt": 1794401367217
+    },
+    {
+      "id": "mwc3lklfxisa73",
+      "name": "#page2",
+      "type": "css",
+      "code": "#page2 {\r\n    opacity: 1;\r\n    visibility: visible;\r\n    transition: opacity 0.5s ease, visibility 0.5s ease;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284291,
+      "updatedAt": 1794401367240
+    },
+    {
+      "id": "mwc3lkly8vin5y",
+      "name": ".fog-wrap",
+      "type": "css",
+      "code": ".fog-wrap { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding-top: .5rem; width: 100%; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284310,
+      "updatedAt": 1794400823941
+    },
+    {
+      "id": "mwc3lkmhaxvwv6",
+      "name": ".fog-bar",
+      "type": "css",
+      "code": ".fog-bar { display: flex; gap: .5rem; align-items: center; font-size: 22px; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284329,
+      "updatedAt": 1794400823963
+    },
+    {
+      "id": "mwc3lkn1mlhh6y",
+      "name": ".fog-bar button",
+      "type": "css",
+      "code": ".fog-bar button { height: 36px; line-height: 36px; padding: 0 16px; margin: 0; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284349,
+      "updatedAt": 1794400823987
+    },
+    {
+      "id": "mwc3lkntrstbv2",
+      "name": ".fog-bar button.active",
+      "type": "css",
+      "code": ".fog-bar button.active { background: gold; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284377,
+      "updatedAt": 1794400824009
+    },
+    {
+      "id": "mwc3lkodlsno4k",
+      "name": ".fog-stage",
+      "type": "css",
+      "code": ".fog-stage { background: #000; line-height: 0; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284397,
+      "updatedAt": 1794400284397
+    },
+    {
+      "id": "mwc3lkow3s1f2o",
+      "name": "#FogMaze",
+      "type": "css",
+      "code": "#FogMaze { height: 85vh; width: 85vh; display: block; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284416,
+      "updatedAt": 1794400824057
+    },
+    {
+      "id": "mwc3lkpeuu1cqp",
+      "name": "#fogMsg",
+      "type": "css",
+      "code": "#fogMsg { font-size: 28px; min-height: 34px; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400284434,
+      "updatedAt": 1794400824082
+    },
+    {
+      "id": "mwc3ue4kuw3xvt",
+      "name": "reset",
+      "type": "js",
+      "code": "        reset() {\n            this.x = 500; this.y = 930; // spawn at the bottom\n            this.state = 'playing';\n            msg.textContent = '';\n            this.applyMask();\n        },",
+      "description": "Extracted method from file",
+      "createdAt": 1794400695812,
+      "updatedAt": 1794400695812
+    },
+    {
+      "id": "mwc3ue58wpgkxg",
+      "name": "setDifficulty",
+      "type": "js",
+      "code": "        setDifficulty(d) {\n            this.difficulty = d;\n            buttons.forEach(b => b.classList.toggle('active', b.dataset.diff === d));\n            this.reset();\n        },",
+      "description": "Extracted method from file",
+      "createdAt": 1794400695836,
+      "updatedAt": 1794400695836
+    },
+    {
+      "id": "mwc3ue5ng2gk6v",
+      "name": "applyMask",
+      "type": "js",
+      "code": "        applyMask() {\n            const r = MASK_RADIUS[this.difficulty];\n            if (r === null) {\n                canvas.style.clipPath = canvas.style.webkitClipPath = 'none';\n                return;\n            }\n            const k = canvas.clientWidth / SIZE;\n            const v = `circle(${r * k}px at ${this.x * k}px ${this.y * k}px)`;\n            canvas.style.webkitClipPath = v;\n            canvas.style.clipPath = v;\n        },",
+      "description": "Extracted method from file",
+      "createdAt": 1794400695851,
+      "updatedAt": 1794400695851
+    },
+    {
+      "id": "mwc3ue60ix5lci",
+      "name": "collide",
+      "type": "js",
+      "code": "        collide() {\n            for (const [rx, ry, rw, rh] of WALLS) {\n                const cx = Math.max(rx, Math.min(this.x, rx + rw));\n                const cy = Math.max(ry, Math.min(this.y, ry + rh));\n                let dx = this.x - cx, dy = this.y - cy;\n                const d2 = dx * dx + dy * dy;\n                if (d2 >= BALL_R * BALL_R) continue;\n                if (d2 === 0) { // centre inside the rectangle: push out the shortest way\n                    const l = this.x - rx, r = rx + rw - this.x, t = this.y - ry, b = ry + rh - this.y;\n                    const m = Math.min(l, r, t, b);\n                    if (m === l) this.x = rx - BALL_R;\n                    else if (m === r) this.x = rx + rw + BALL_R;\n                    else if (m === t) this.y = ry - BALL_R;\n                    else this.y = ry + rh + BALL_R;\n                } else {\n                    const d = Math.sqrt(d2);\n                    this.x = cx + dx / d * BALL_R;\n                    this.y = cy + dy / d * BALL_R;\n                }\n            }\n        },",
+      "description": "Extracted method from file",
+      "createdAt": 1794400695864,
+      "updatedAt": 1794400695864
+    },
+    {
+      "id": "mwc3ue6hwtr2dt",
+      "name": "touches",
+      "type": "js",
+      "code": "        touches([rx, ry, rw, rh]) {\n            const cx = Math.max(rx, Math.min(this.x, rx + rw));\n            const cy = Math.max(ry, Math.min(this.y, ry + rh));\n            return (this.x - cx) ** 2 + (this.y - cy) ** 2 < BALL_R * BALL_R;\n        },",
+      "description": "Extracted method from file",
+      "createdAt": 1794400695881,
+      "updatedAt": 1794400695881
+    },
+    {
+      "id": "mwc3ue7kac0jow",
+      "name": "draw",
+      "type": "js",
+      "code": "        draw() {\n            ctx.fillStyle = '#f4efe0';\n            ctx.fillRect(0, 0, SIZE, SIZE);\n\n            ctx.fillStyle = 'rgba(200,0,0,.8)';\n            ctx.fillRect(...DEATH);\n\n            // finish: ball-shaped rectangle\n            const [fx, fy, fw, fh] = FINISH;\n            ctx.fillStyle = 'gold';\n            ctx.beginPath();\n            ctx.roundRect(fx, fy, fw, fh, 25);\n            ctx.fill();\n            ctx.strokeStyle = 'darkgoldenrod';\n            ctx.lineWidth = 3;\n            ctx.stroke();\n\n            ctx.fillStyle = 'saddlebrown';\n            for (const w of WALLS) ctx.fillRect(...w);\n\n            ctx.fillStyle = 'orange';\n            ctx.beginPath();\n            ctx.arc(this.x, this.y, BALL_R, 0, Math.PI * 2);\n            ctx.fill();\n            ctx.strokeStyle = 'black';\n            ctx.lineWidth = 2;\n            ctx.stroke();\n        },",
+      "description": "Extracted method from file",
+      "createdAt": 1794400695920,
+      "updatedAt": 1794400695920
+    },
+    {
+      "id": "mwc3ue860w7zmu",
+      "name": "frame",
+      "type": "js",
+      "code": "        frame(t) {\n            const dt = Math.min(0.05, (t - (this.last || t)) / 1000);\n            this.last = t;\n            if (canvas.offsetParent !== null) {\n                this.update(dt);\n                this.draw();\n                this.applyMask();\n            }\n            requestAnimationFrame(tt => this.frame(tt));\n        }",
+      "description": "Extracted method from file",
+      "createdAt": 1794400695942,
+      "updatedAt": 1794400695942
+    },
+    {
+      "id": "mwc3x528yd1rr5",
+      "name": "#page4",
+      "type": "css",
+      "code": "#page4 { background: #000; line-height: 0; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400824032,
+      "updatedAt": 1794400824032
+    },
+    {
+      "id": "mwc40rl6vnbehl",
+      "name": ".maze-wrap",
+      "type": "css",
+      "code": ".maze-wrap { \r\n    display: flex; flex-direction: column; align-items: center; gap: .5rem; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400993194,
+      "updatedAt": 1794401367259
+    },
+    {
+      "id": "mwc40rlpyxnkm6",
+      "name": ".maze-bar",
+      "type": "css",
+      "code": ".maze-bar { display: flex; gap: .5rem; align-items: center; font-size: 22px; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400993213,
+      "updatedAt": 1794401367280
+    },
+    {
+      "id": "mwc40rm2ocxuwl",
+      "name": ".maze-bar button",
+      "type": "css",
+      "code": ".maze-bar button { height: 36px; line-height: 36px; padding: 0 16px; margin: 0; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400993226,
+      "updatedAt": 1794401367302
+    },
+    {
+      "id": "mwc40rmmme4b0o",
+      "name": ".maze-bar button.active",
+      "type": "css",
+      "code": ".maze-bar button.active { background: gold; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400993246,
+      "updatedAt": 1794401367326
+    },
+    {
+      "id": "mwc40rn4wpfa97",
+      "name": ".maze-stage",
+      "type": "css",
+      "code": ".maze-stage { background: black; line-height: 0; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400993264,
+      "updatedAt": 1794401367357
+    },
+    {
+      "id": "mwc40rnju0pv7i",
+      "name": ".maze-stage canvas",
+      "type": "css",
+      "code": ".maze-stage canvas { background: white; display: block; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794400993279,
+      "updatedAt": 1794401367381
+    },
+    {
+      "id": "mwc48qxsatnwv2",
+      "name": ".options",
+      "type": "css",
+      "code": ".options { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; width: 100%; padding-top: 2rem; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365600,
+      "updatedAt": 1794401367403
+    },
+    {
+      "id": "mwc48qy93ihdzr",
+      "name": ".options h1",
+      "type": "css",
+      "code": ".options h1 { font-size: 90px; margin: 0; line-height: 1; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365617,
+      "updatedAt": 1794401367426
+    },
+    {
+      "id": "mwc48qyp71ds5d",
+      "name": ".options-intro",
+      "type": "css",
+      "code": ".options-intro { font-size: 26px; transform: rotate(-1deg); }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365633,
+      "updatedAt": 1794401367454
+    },
+    {
+      "id": "mwc48qz5yfa94w",
+      "name": ".option-row",
+      "type": "css",
+      "code": ".option-row {\r\n    display: grid; grid-template-columns: 230px 300px 130px; align-items: center; gap: 1rem;\r\n    padding: 14px 24px; font-size: 30px;\r\n    border: 3px solid #000;\r\n    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;\r\n    background: repeating-linear-gradient(-45deg, #fff 0 7px, #ffc0cb 7px 9px);\r\n    box-shadow: 3px 3px 0 #000;\r\n}\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365649,
+      "updatedAt": 1794401367482
+    },
+    {
+      "id": "mwc48qznxey6sx",
+      "name": ".option-row:nth-child(even)",
+      "type": "css",
+      "code": ".option-row:nth-child(even) { transform: rotate(.6deg); }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365667,
+      "updatedAt": 1794401367513
+    },
+    {
+      "id": "mwc48qzy1dhpap",
+      "name": ".option-row:nth-child(odd)",
+      "type": "css",
+      "code": ".option-row:nth-child(odd) { transform: rotate(-.6deg); }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365678,
+      "updatedAt": 1794401367554
+    },
+    {
+      "id": "mwc48r0d3l8pkm",
+      "name": ".option-row label",
+      "type": "css",
+      "code": ".option-row label { margin: 0; font-size: 30px; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365693,
+      "updatedAt": 1794401367577
+    },
+    {
+      "id": "mwc48r0uuq7nux",
+      "name": ".option-value",
+      "type": "css",
+      "code": ".option-value { font-size: 24px; text-align: center; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365710,
+      "updatedAt": 1794401367602
+    },
+    {
+      "id": "mwc48r1ajc7cf9",
+      "name": ".slider",
+      "type": "css",
+      "code": ".slider { -webkit-appearance: none; appearance: none; width: 100%; height: 16px; cursor: pointer;\r\n    background: repeating-linear-gradient(-45deg, #fff 0 4px, gold 4px 6px);\r\n    border: 3px solid #000; border-radius: 12px 4px 14px 5px / 5px 14px 4px 12px; outline: none; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365726,
+      "updatedAt": 1794401367629
+    },
+    {
+      "id": "mwc48r1sbc62a4",
+      "name": ".slider::-webkit-slider-thumb",
+      "type": "css",
+      "code": ".slider::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; cursor: grab;\r\n    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);\r\n    border: 3px solid #000; border-radius: 50% 45% 55% 50%; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365744,
+      "updatedAt": 1794401367652
+    },
+    {
+      "id": "mwc48r29bqqc1p",
+      "name": ".slider::-moz-range-thumb",
+      "type": "css",
+      "code": ".slider::-moz-range-thumb { width: 24px; height: 24px; cursor: grab;\r\n    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);\r\n    border: 3px solid #000; border-radius: 50% 45% 55% 50%; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365761,
+      "updatedAt": 1794401367668
+    },
+    {
+      "id": "mwc48r2ur8ko4l",
+      "name": ".switch",
+      "type": "css",
+      "code": ".switch { position: relative; display: inline-block; width: 90px; height: 42px; cursor: pointer; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365782,
+      "updatedAt": 1794401367687
+    },
+    {
+      "id": "mwc48r3ikrbnc8",
+      "name": ".switch input",
+      "type": "css",
+      "code": ".switch input { opacity: 0; width: 0; height: 0; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365806,
+      "updatedAt": 1794401367707
+    },
+    {
+      "id": "mwc48r47s67lds",
+      "name": ".switch-track",
+      "type": "css",
+      "code": ".switch-track { position: absolute; inset: 0; border: 3px solid #000;\r\n    border-radius: 30px 8px 28px 10px / 10px 28px 8px 30px;\r\n    background: repeating-linear-gradient(-45deg, #fff 0 4px, #bbb 4px 6px); transition: background .2s; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365831,
+      "updatedAt": 1794401367724
+    },
+    {
+      "id": "mwc48r4uqiz7g4",
+      "name": ".switch-track::before",
+      "type": "css",
+      "code": ".switch-track::before { content: \"\"; position: absolute; width: 28px; height: 28px; left: 4px; top: 3px;\r\n    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);\r\n    border: 3px solid #000; border-radius: 50% 45% 55% 50%; transition: transform .2s; }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365854,
+      "updatedAt": 1794401367741
+    },
+    {
+      "id": "mwc48r5nhibgx6",
+      "name": ".switch input:checked + .switch-track",
+      "type": "css",
+      "code": ".switch input:checked + .switch-track { background: repeating-linear-gradient(-45deg, #fff 0 4px, gold 4px 6px); }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365883,
+      "updatedAt": 1794401367757
+    },
+    {
+      "id": "mwc48r6m5bd28q",
+      "name": ".switch input:checked + .switch-track::before",
+      "type": "css",
+      "code": ".switch input:checked + .switch-track::before { transform: translateX(46px); }\r",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365918,
+      "updatedAt": 1794401367774
+    },
+    {
+      "id": "mwc48r76uyu6zy",
+      "name": ".switch input:focus-visible + .switch-track",
+      "type": "css",
+      "code": ".switch input:focus-visible + .switch-track { outline: 3px dashed #000; outline-offset: 3px; }",
+      "description": "Extracted rule from file",
+      "createdAt": 1794401365938,
+      "updatedAt": 1794401367791
+    },
+    {
+      "id": "mwc4gbkf43kyp7",
+      "name": "MoveBall",
+      "type": "js",
+      "code": "class MoveBall extends LaunchBall {\n    constructor(diameter, color, drawnstyle, x, y, canvasId, speed = 200) {\n        super(diameter, color, drawnstyle, x, y, false, canvasId, {\n            gravity: 0,\n            launchSpeedPerPixel: 1,\n            maximumLaunchSpeed: speed,\n            restitution: 0,\n            maximumFrameDelta: 0.05,\n            collisionStepDistance: Math.max(1, diameter / 4)\n        });\n        this.speed = speed;\n        this.keys = new Set();\n        this.hoverCursor = 'default';\n    }\n\n    bindEvents() {\n        CanvasItem.prototype.bindEvents.call(this); // hover only, no dragging\n        window.addEventListener('keydown', event => this.handleKeyDown(event));\n        window.addEventListener('keyup', event => this.keys.delete(MoveBall.keyName(event)));\n        window.addEventListener('blur', () => this.keys.clear());\n    }\n\n    static keyName(event) {\n        const k = event.key.toLowerCase();\n        return { arrowleft: 'a', arrowright: 'd', arrowup: 'w', arrowdown: 's' }[k] || k;\n    }\n\n    handleKeyDown(event) {\n        // Only steer while this canvas is actually on screen.\n        if (this.canvas.offsetParent === null) return;\n        const key = MoveBall.keyName(event);\n        if (!['a', 'd', 'w', 's'].includes(key)) return;\n        event.preventDefault();\n        this.keys.add(key);\n        this.startAnimation();\n    }\n\n    handleMouseMove() {}\n\n    update(deltaTime) {\n        const vx = (this.keys.has('d') ? 1 : 0) - (this.keys.has('a') ? 1 : 0);\n        const vy = (this.keys.has('s') ? 1 : 0) - (this.keys.has('w') ? 1 : 0);\n        const length = Math.hypot(vx, vy);\n        this.isMoving = length > 0;\n        if (!this.isMoving) {\n            this.velocityX = 0;\n            this.velocityY = 0;\n            return false;\n        }\n        this.velocityX = vx / length * this.speed;\n        this.velocityY = vy / length * this.speed;\n        return super.update(deltaTime);\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794401718927,
+      "updatedAt": 1794401718927
+    },
+    {
+      "id": "mwc4gbm1rm3l5x",
+      "name": "PlatformBall",
+      "type": "js",
+      "code": "class PlatformBall extends LaunchBall {\n    constructor(diameter, color, drawnstyle, x, y, canvasId, options = {}) {\n        super(diameter, color, drawnstyle, x, y, false, canvasId, {\n            gravity: options.gravity ?? 1500,\n            launchSpeedPerPixel: 1,\n            maximumLaunchSpeed: 1,\n            restitution: 0,\n            maximumFrameDelta: 0.03,\n            collisionStepDistance: Math.max(1, diameter / 4)\n        });\n        this.speed = options.speed ?? 260;\n        this.jumpSpeed = options.jumpSpeed ?? 720;\n        this.spawnX = x;\n        this.spawnY = y;\n        this.keys = new Set();\n        this.enabled = true;\n        this.hoverCursor = 'default';\n    }\n\n    static keyName(event) {\n        const k = event.key === ' ' ? 'space' : event.key.toLowerCase();\n        return { arrowleft: 'a', arrowright: 'd', arrowup: 'w' }[k] || k;\n    }\n\n    bindEvents() {\n        window.addEventListener('keydown', event => this.handleKeyDown(event));\n        window.addEventListener('keyup', event => this.keys.delete(PlatformBall.keyName(event)));\n        window.addEventListener('blur', () => this.keys.clear());\n    }\n\n    handleKeyDown(event) {\n        // Only steer while this canvas is actually on screen.\n        if (this.canvas.offsetParent === null) return;\n        const key = PlatformBall.keyName(event);\n        if (!['a', 'd', 'w', 'space'].includes(key)) return;\n        event.preventDefault();\n        this.keys.add(key);\n        if (this.enabled) this.startAnimation();\n    }\n\n    handleMouseMove() {}\n\n    // Is something solid directly under the ball?\n    isOnGround() {\n        const r = this.diameter / 2;\n        for (const block of this.blocks()) {\n            const { x, y, width, height } = block.bounds;\n            const cx = Math.max(x, Math.min(this.start_x, x + width));\n            const cy = Math.max(y, Math.min(this.start_y + 3, y + height));\n            if (this.start_y <= cy && Math.hypot(this.start_x - cx, this.start_y + 3 - cy) < r) return true;\n        }\n        return false;\n    }\n\n    reset() {\n        this.start_x = this.spawnX;\n        this.start_y = this.spawnY;\n        this.velocityX = 0;\n        this.velocityY = 0;\n        this.keys.clear();\n        this.enabled = true;\n        this.startAnimation();\n    }\n\n    update(deltaTime) {\n        this.isMoving = this.enabled;\n        if (!this.enabled) return false;\n        this.velocityX = ((this.keys.has('d') ? 1 : 0) - (this.keys.has('a') ? 1 : 0)) * this.speed;\n        if ((this.keys.has('w') || this.keys.has('space')) && this.isOnGround()) {\n            this.velocityY = -this.jumpSpeed;\n        }\n        super.update(deltaTime);\n        return this.enabled;\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794401718985,
+      "updatedAt": 1794401718985
+    },
+    {
+      "id": "mwc4gbnn9xxr95",
+      "name": "Zone",
+      "type": "js",
+      "code": "class Zone extends RectItem {\n    static layer = 1;\n\n    constructor(canvasId, x, y, width, height, group = 'Zone') {\n        super(canvasId, x, y, width, height, group);\n        this.seed = Math.floor(Math.random() * 2 ** 31);\n    }\n\n    bindEvents() {}\n\n    touches(ball, leniency = 0.8) {\n        const { x, y, width, height } = this.bounds;\n        const cx = Math.max(x, Math.min(ball.start_x, x + width));\n        const cy = Math.max(y, Math.min(ball.start_y, y + height));\n        return Math.hypot(ball.start_x - cx, ball.start_y - cy) < ball.diameter / 2 * leniency;\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794401719043,
+      "updatedAt": 1794401719043
+    },
+    {
+      "id": "mwc4gbo6trvz4g",
+      "name": "TextLabel",
+      "type": "js",
+      "code": "class TextLabel extends CanvasItem {\n    static layer = 3;\n\n    constructor(canvasId, text, x, y, { size = 24, color = '#000000', align = 'left' } = {}) {\n        super(canvasId, 'TextLabel');\n        this.text = text;\n        this.x = x;\n        this.y = y;\n        this.size = size;\n        this.color = color;\n        this.align = align;\n    }\n\n    bindEvents() {}\n\n    paint() {\n        const text = typeof this.text === 'function' ? this.text() : this.text;\n        if (!text) return;\n        const { context } = this;\n        context.font = `${this.size}px \"Cabin Sketch\", cursive, sans-serif`;\n        context.fillStyle = this.color;\n        context.textAlign = this.align;\n        context.textBaseline = 'middle';\n        text.split('\\n').forEach((line, i) => context.fillText(line, this.x, this.y + i * this.size * 1.3));\n    }\n}",
+      "description": "Extracted class from file",
+      "createdAt": 1794401719062,
+      "updatedAt": 1794401719062
     }
   ]
 }
