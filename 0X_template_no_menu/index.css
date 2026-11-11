@@ -104,3 +104,53 @@ body,
     visibility: visible;
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
+
+.maze-wrap { 
+    display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+.maze-bar { display: flex; gap: .5rem; align-items: center; font-size: 22px; }
+.maze-bar button { height: 36px; line-height: 36px; padding: 0 16px; margin: 0; }
+.maze-bar button.active { background: gold; }
+.maze-stage { background: black; line-height: 0; }
+.maze-stage canvas { background: white; display: block; }
+/*------------options page (sketch style)-----------*/
+.options { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; width: 100%; padding-top: 2rem; }
+.options h1 { font-size: 90px; margin: 0; line-height: 1; }
+.options-intro { font-size: 26px; transform: rotate(-1deg); }
+
+/* hand-drawn card: wobbly outline + pink hachure fill, like the rough.js buttons */
+.option-row {
+    display: grid; grid-template-columns: 230px 300px 130px; align-items: center; gap: 1rem;
+    padding: 14px 24px; font-size: 30px;
+    border: 3px solid #000;
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    background: repeating-linear-gradient(-45deg, #fff 0 7px, #ffc0cb 7px 9px);
+    box-shadow: 3px 3px 0 #000;
+}
+.option-row:nth-child(even) { transform: rotate(.6deg); }
+.option-row:nth-child(odd) { transform: rotate(-.6deg); }
+.option-row label { margin: 0; font-size: 30px; }
+.option-value { font-size: 24px; text-align: center; }
+
+/* sketchy slider: wobbly pencil line + scribbled round knob */
+.slider { -webkit-appearance: none; appearance: none; width: 100%; height: 16px; cursor: pointer;
+    background: repeating-linear-gradient(-45deg, #fff 0 4px, gold 4px 6px);
+    border: 3px solid #000; border-radius: 12px 4px 14px 5px / 5px 14px 4px 12px; outline: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; cursor: grab;
+    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);
+    border: 3px solid #000; border-radius: 50% 45% 55% 50%; }
+.slider::-moz-range-thumb { width: 24px; height: 24px; cursor: grab;
+    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);
+    border: 3px solid #000; border-radius: 50% 45% 55% 50%; }
+
+/* sketchy switch */
+.switch { position: relative; display: inline-block; width: 90px; height: 42px; cursor: pointer; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-track { position: absolute; inset: 0; border: 3px solid #000;
+    border-radius: 30px 8px 28px 10px / 10px 28px 8px 30px;
+    background: repeating-linear-gradient(-45deg, #fff 0 4px, #bbb 4px 6px); transition: background .2s; }
+.switch-track::before { content: ""; position: absolute; width: 28px; height: 28px; left: 4px; top: 3px;
+    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);
+    border: 3px solid #000; border-radius: 50% 45% 55% 50%; transition: transform .2s; }
+.switch input:checked + .switch-track { background: repeating-linear-gradient(-45deg, #fff 0 4px, gold 4px 6px); }
+.switch input:checked + .switch-track::before { transform: translateX(46px); }
+.switch input:focus-visible + .switch-track { outline: 3px dashed #000; outline-offset: 3px; }

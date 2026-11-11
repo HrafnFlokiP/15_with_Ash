@@ -1,115 +1,48 @@
+// ---- Settings (set on the options page) ----
+// difficulty slider 1-100 (higher = harder): 1-33 easy (no clip mask), 34-66 normal, 67-100 hard.
+const gameSettings = { difficulty: 50, brightness: 50, sound: true };
+
+function getDifficultyName() {
+    const d = gameSettings.difficulty;
+    return d <= 33 ? 'easy' : d <= 66 ? 'normal' : 'hard';
+}
+
+// Plays a sound effect only if sound is switched on.
+function playSound(file = '../api_lib/sounds/beep.mp3') {
+    if (!gameSettings.sound) return;
+    new Audio(file).play().catch(() => { });
+}
+
+function setupOptions() {
+    const diff = document.getElementById('difficultyRange');
+    const bright = document.getElementById('brightnessRange');
+    const sound = document.getElementById('soundSwitch');
+
+    const saved = JSON.parse(localStorage.getItem('gameSettings') || '{}');
+    Object.assign(gameSettings, saved);
+    diff.value = gameSettings.difficulty;
+    bright.value = gameSettings.brightness;
+    sound.checked = gameSettings.sound;
+
+    const apply = () => {
+        gameSettings.difficulty = Number(diff.value);
+        gameSettings.brightness = Number(bright.value);
+        gameSettings.sound = sound.checked;
+        document.getElementById('difficultyLabel').textContent = `${gameSettings.difficulty} (${getDifficultyName()})`;
+        document.getElementById('brightnessLabel').textContent = gameSettings.brightness;
+        document.getElementById('soundLabel').textContent = gameSettings.sound ? 'On' : 'Off';
+        // 50 = normal brightness, 1 = very dark, 100 = double
+        document.querySelector('main').style.filter = `brightness(${gameSettings.brightness / 50})`;
+        localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
+    };
+    [diff, bright, sound].forEach(el => el.addEventListener('input', apply));
+    apply();
+}
 window.onload = function () {
     const loadingScreen = document.getElementById("page2");
 
     loadingScreen.classList.add("hidden");
 };
-
-const buttonsByCanvas = new WeakMap();
-
-class SketchButton {
-    constructor(canvasId, label, hoverFill, onClick, x, y, width = 200, height = 100) {
-        this.canvas = document.getElementById(canvasId);
-        if (!this.canvas) {
-            throw new Error(`Canvas "${canvasId}" was not found.`);
-        }
-
-        if (typeof onClick !== 'function') {
-            throw new TypeError('SketchButton onClick must be a function.');
-        }
-        if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {
-            throw new RangeError('SketchButton position and dimensions must be finite, with positive width and height.');
-        }
-
-        this.context = this.canvas.getContext('2d');
-        if (!this.context) {
-            throw new Error(`Canvas "${canvasId}" does not support 2D drawing.`);
-        }
-
-        this.roughCanvas = rough.canvas(this.canvas);
-        this.label = label;
-        this.hoverFill = hoverFill;
-        this.onClick = onClick;
-        this.bounds = { x, y, width, height };
-        this.hovered = false;
-
-        let buttons = buttonsByCanvas.get(this.canvas);
-        if (!buttons) {
-            buttons = [];
-            buttonsByCanvas.set(this.canvas, buttons);
-            this.canvas.addEventListener('mousemove', event => this.handleMouseMove(event));
-            this.canvas.addEventListener('mouseleave', () => this.handleMouseLeave());
-            this.canvas.addEventListener('click', event => {
-                const target = [...buttons].reverse().find(button => button.contains(event));
-                if (target) target.onClick();
-            });
-        }
-        buttons.push(this);
-
-        this.draw();
-    }
-
-    contains(event) {
-        const rect = this.canvas.getBoundingClientRect();
-        if (!rect.width || !rect.height) return false;
-
-        const x = (event.clientX - rect.left) * this.canvas.width / rect.width;
-        const y = (event.clientY - rect.top) * this.canvas.height / rect.height;
-        const { x: left, y: top, width, height } = this.bounds;
-
-        return x >= left && x <= left + width &&
-            y >= top && y <= top + height;
-    }
-
-    handleMouseMove(event) {
-        let changed = false;
-        let hoveredButton = false;
-        for (const button of buttonsByCanvas.get(this.canvas)) {
-            const hovered = button.contains(event);
-            if (hovered) hoveredButton = true;
-            if (button.hovered !== hovered) {
-                button.hovered = hovered;
-                changed = true;
-            }
-        }
-        this.canvas.style.cursor = hoveredButton ? 'pointer' : 'default';
-        if (changed) this.draw();
-    }
-
-    handleMouseLeave() {
-        let changed = false;
-        for (const button of buttonsByCanvas.get(this.canvas)) {
-            if (button.hovered) {
-                button.hovered = false;
-                changed = true;
-            }
-        }
-        this.canvas.style.cursor = 'default';
-        if (changed) this.draw();
-    }
-
-    draw() {
-        const context = this.context;
-        context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        for (const button of buttonsByCanvas.get(this.canvas)) {
-            button.drawButton();
-        }
-    }
-
-    drawButton() {
-        const { x, y, width, height } = this.bounds;
-        const { context } = this;
-        this.roughCanvas.rectangle(x, y, width, height, {
-            fill: this.hovered ? this.hoverFill : 'pink',
-            fillStyle: this.hovered ? 'cross-hatch' : 'hachure'
-        });
-
-        context.font = '16px "Cabin Sketch", cursive, sans-serif';
-        context.fillStyle = '#000000';
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        context.fillText(this.label, x + width / 2, y + height / 2);
-    }
-}
 
 function setup() {
     noCanvas();
@@ -117,7 +50,7 @@ function setup() {
     setTimeout(() => shiftPage('#page1'), 250);
 
     new SketchButton('myCanvas', 'Start!', 'lightblue', () => {
-        shiftPage('#page5');
+        shiftPage('#page4');
     }, 75, 50, 250, 110);
     new SketchButton('myCanvas', 'Options', 'orange', () => {
         shiftPage('#page3');
@@ -127,9 +60,7 @@ function setup() {
         shiftPage('#page1');
     }, 125, 50, 150, 90);
 
-    new SketchButton('myCanvas3', 'Go Back!', 'cyan', () => {
-        shiftPage('#page1');
-    }, 125, 50, 150, 90);
-
+    setupOptions();
     setupFillHoles();
+    setupMazeHaze();
 }
