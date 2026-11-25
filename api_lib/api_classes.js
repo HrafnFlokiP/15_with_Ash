@@ -2,6 +2,15 @@
 // Extend these in the mini game files instead of re-implementing canvas setup,
 // hover handling, drag-to-launch physics, block collisions, etc.
 
+// True while the page that holds this canvas is the one currently slid into
+// view (the page with the "show" class). Pages are only moved off-screen with a
+// CSS transform, so `offsetParent` is never null for them - we must ask the page.
+// Canvases that are not inside a .page fall back to a plain visibility check.
+function isCanvasOnScreen(canvas) {
+    const page = canvas.closest('.page');
+    return page ? page.classList.contains('show') : canvas.offsetParent !== null;
+}
+
 // Per-canvas bookkeeping: item groups, current drag target and animation flag.
 const canvasStates = new WeakMap();
 
@@ -608,7 +617,7 @@ class MoveBall extends LaunchBall {
 
     handleKeyDown(event) {
         // Only steer while this canvas is actually on screen.
-        if (this.canvas.offsetParent === null) return;
+        if (!isCanvasOnScreen(this.canvas)) return;
         const key = MoveBall.keyName(event);
         if (!['a', 'd', 'w', 's'].includes(key)) return;
         event.preventDefault();
@@ -670,7 +679,7 @@ class PlatformBall extends LaunchBall {
 
     handleKeyDown(event) {
         // Only steer while this canvas is actually on screen.
-        if (this.canvas.offsetParent === null) return;
+        if (!isCanvasOnScreen(this.canvas)) return;
         const key = PlatformBall.keyName(event);
         if (!['a', 'd', 'w', 'space'].includes(key)) return;
         event.preventDefault();

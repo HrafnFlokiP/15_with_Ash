@@ -1,34 +1,67 @@
+/* =============================================================================
+   index.css - styles for the whole game
+
+   Sections:
+     1. Fonts and colours
+     2. Page layout and page slide animation
+     3. Splash screen (page 2)
+     4. Maze page (page 4)
+     5. Options page (page 3)  - hand-drawn sliders, switch and cards
+     6. Score page (page 7)    - reuses the same hand-drawn look
+   ============================================================================= */
+
+
+/* ----- 1. Fonts and colours ------------------------------------------------ */
+
+/* These two fonts are imported but not used anywhere yet. */
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap');
 
+/* Colours and shapes used by the hand-drawn look. Change them here once. */
+:root {
+    --ink: #000;
+    --paper: #fff;
+    --pink: #ffc0cb;
+    --gold: gold;
+    --orange: orange;
+    --grey: #bbb;
 
+    /* Corners with different radii look hand-drawn instead of perfectly round. */
+    --wobbly-card: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    --wobbly-bar: 12px 4px 14px 5px / 5px 14px 4px 12px;
+    --wobbly-blob: 50% 45% 55% 50%;
+    --wobbly-switch: 30px 8px 28px 10px / 10px 28px 8px 30px;
+}
+
+/* Reset: same font everywhere, no default spacing, padding counts inside widths. */
 body,
 * {
     font-family: "Cabin Sketch";
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-
 }
 
+
+/* ----- 2. Page layout and page slide animation ------------------------------ */
+
+/* Every page is a full-screen layer stacked on top of the others.
+   Hidden pages wait above the screen (translateY(-100%)). */
 .page {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    top: 0;
-    /*visibility: hidden;
-     grid layout */
-    display: absolute;
     place-items: center;
-    position: absolute;
-    left: 0;
-    pointer-events: none;
+    pointer-events: none;            /* hidden pages must not catch clicks */
     transform: translateY(-100%);
     transition: transform 1s ease-in-out;
 }
 
+/* shiftPage() in api_lib/myApi.js adds this class to the page that should be visible. */
 .page.show {
-    /*visibility: visible;*/
     pointer-events: auto;
     transform: translateY(0);
 }
@@ -40,45 +73,40 @@ body,
 
 .page h1 {
     font-family: "Cabin Sketch";
-    font-size:150px;
+    font-size: 150px;
     text-align: center;
     line-height: 90px;
-    margin-bottom:10rem;
+    margin-bottom: 10rem;
 }
 
-/*------------splash screen-----------*/
+
+/* ----- 3. Splash screen (page 2) --------------------------------------------- */
+
 .logo {
     position: absolute;
-
     top: 50%;
     left: 50%;
-
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);   /* centres the logo exactly */
 }
 
 .logo img {
     width: 600px;
     max-width: 300vw;
     height: auto;
-
     display: block;
     object-fit: contain;
 }
 
+/* The spinning circle: a grey ring with one white edge that rotates. */
 .loading_circle {
     position: absolute;
-
     bottom: 30px;
     right: 30px;
-
     width: 35px;
     height: 35px;
-
     border: 4px solid #444;
     border-top: 4px solid white;
-
     border-radius: 50%;
-
     animation: spin 0.8s linear infinite;
 }
 
@@ -92,6 +120,13 @@ body,
     }
 }
 
+#page2 {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+/* index.js adds "hidden" when the game has finished loading. */
 #page2.hidden {
     opacity: 0;
     visibility: hidden;
@@ -99,58 +134,330 @@ body,
 }
 
 
-#page2 {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+/* ----- 4. Maze page (page 4) -------------------------------------------------- */
+
+.maze-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
 }
 
-.maze-wrap { 
-    display: flex; flex-direction: column; align-items: center; gap: .5rem; }
-.maze-bar { display: flex; gap: .5rem; align-items: center; font-size: 22px; }
-.maze-bar button { height: 36px; line-height: 36px; padding: 0 16px; margin: 0; }
-.maze-bar button.active { background: gold; }
-.maze-stage { background: black; line-height: 0; }
-.maze-stage canvas { background: white; display: block; }
-/*------------options page (sketch style)-----------*/
-.options { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; width: 100%; padding-top: 2rem; }
-.options h1 { font-size: 90px; margin: 0; line-height: 1; }
-.options-intro { font-size: 26px; transform: rotate(-1deg); }
+.maze-bar {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    font-size: 22px;
+}
 
-/* hand-drawn card: wobbly outline + pink hachure fill, like the rough.js buttons */
+.maze-bar button {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 16px;
+    margin: 0;
+}
+
+.maze-bar button.active {
+    background: gold;
+}
+
+.maze-stage {
+    background: black;
+    line-height: 0;
+}
+
+.maze-stage canvas {
+    background: white;
+    display: block;
+}
+
+
+/* ----- 5. Options page (page 3) ------------------------------------------------ */
+
+.options {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.4rem;
+    width: 100%;
+    padding-top: 2rem;
+}
+
+.options h1 {
+    font-size: 90px;
+    margin: 0;
+    line-height: 1;
+}
+
+.options-intro {
+    font-size: 26px;
+    transform: rotate(-1deg);
+}
+
+/* One setting = one hand-drawn card: wobbly outline, pink stripes and a hard shadow.
+   The three columns are: label | control | current value. */
 .option-row {
-    display: grid; grid-template-columns: 230px 300px 130px; align-items: center; gap: 1rem;
-    padding: 14px 24px; font-size: 30px;
-    border: 3px solid #000;
-    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-    background: repeating-linear-gradient(-45deg, #fff 0 7px, #ffc0cb 7px 9px);
-    box-shadow: 3px 3px 0 #000;
+    display: grid;
+    grid-template-columns: 230px 300px 130px;
+    align-items: center;
+    gap: 1rem;
+    padding: 14px 24px;
+    font-size: 30px;
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-card);
+    background: repeating-linear-gradient(-45deg, var(--paper) 0 7px, var(--pink) 7px 9px);
+    box-shadow: 3px 3px 0 var(--ink);
 }
-.option-row:nth-child(even) { transform: rotate(.6deg); }
-.option-row:nth-child(odd) { transform: rotate(-.6deg); }
-.option-row label { margin: 0; font-size: 30px; }
-.option-value { font-size: 24px; text-align: center; }
 
-/* sketchy slider: wobbly pencil line + scribbled round knob */
-.slider { -webkit-appearance: none; appearance: none; width: 100%; height: 16px; cursor: pointer;
-    background: repeating-linear-gradient(-45deg, #fff 0 4px, gold 4px 6px);
-    border: 3px solid #000; border-radius: 12px 4px 14px 5px / 5px 14px 4px 12px; outline: none; }
-.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; cursor: grab;
-    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);
-    border: 3px solid #000; border-radius: 50% 45% 55% 50%; }
-.slider::-moz-range-thumb { width: 24px; height: 24px; cursor: grab;
-    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);
-    border: 3px solid #000; border-radius: 50% 45% 55% 50%; }
+/* Tilt neighbouring cards in opposite directions, like notes on a board. */
+.option-row:nth-child(even) {
+    transform: rotate(.6deg);
+}
 
-/* sketchy switch */
-.switch { position: relative; display: inline-block; width: 90px; height: 42px; cursor: pointer; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.switch-track { position: absolute; inset: 0; border: 3px solid #000;
-    border-radius: 30px 8px 28px 10px / 10px 28px 8px 30px;
-    background: repeating-linear-gradient(-45deg, #fff 0 4px, #bbb 4px 6px); transition: background .2s; }
-.switch-track::before { content: ""; position: absolute; width: 28px; height: 28px; left: 4px; top: 3px;
-    background: repeating-linear-gradient(45deg, orange 0 4px, #fff 4px 6px);
-    border: 3px solid #000; border-radius: 50% 45% 55% 50%; transition: transform .2s; }
-.switch input:checked + .switch-track { background: repeating-linear-gradient(-45deg, #fff 0 4px, gold 4px 6px); }
-.switch input:checked + .switch-track::before { transform: translateX(46px); }
-.switch input:focus-visible + .switch-track { outline: 3px dashed #000; outline-offset: 3px; }
+.option-row:nth-child(odd) {
+    transform: rotate(-.6deg);
+}
+
+.option-row label {
+    margin: 0;
+    font-size: 30px;
+}
+
+.option-value {
+    font-size: 24px;
+    text-align: center;
+}
+
+/* Sketchy slider: a wobbly pencil line with a scribbled round knob.
+   The knob needs one rule per browser engine (-webkit- = Chrome/Edge/Safari, -moz- = Firefox). */
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 16px;
+    cursor: pointer;
+    background: repeating-linear-gradient(-45deg, var(--paper) 0 4px, var(--gold) 4px 6px);
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-bar);
+    outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 30px;
+    height: 30px;
+    cursor: grab;
+    background: repeating-linear-gradient(45deg, var(--orange) 0 4px, var(--paper) 4px 6px);
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-blob);
+}
+
+.slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    cursor: grab;
+    background: repeating-linear-gradient(45deg, var(--orange) 0 4px, var(--paper) 4px 6px);
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-blob);
+}
+
+/* Sketchy on/off switch. The real checkbox is invisible; the track and the
+   knob (::before) are drawn on top, and ":checked" moves the knob. */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 90px;
+    height: 42px;
+    cursor: pointer;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-track {
+    position: absolute;
+    inset: 0;
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-switch);
+    background: repeating-linear-gradient(-45deg, var(--paper) 0 4px, var(--grey) 4px 6px);
+    transition: background .2s;
+}
+
+.switch-track::before {
+    content: "";
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    left: 4px;
+    top: 3px;
+    background: repeating-linear-gradient(45deg, var(--orange) 0 4px, var(--paper) 4px 6px);
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-blob);
+    transition: transform .2s;
+}
+
+.switch input:checked+.switch-track {
+    background: repeating-linear-gradient(-45deg, var(--paper) 0 4px, var(--gold) 4px 6px);
+}
+
+.switch input:checked+.switch-track::before {
+    transform: translateX(46px);
+}
+
+/* Dashed outline when the switch is reached with the keyboard. */
+.switch input:focus-visible+.switch-track {
+    outline: 3px dashed var(--ink);
+    outline-offset: 3px;
+}
+
+
+/* ----- 6. Score page (page 7) ---------------------------------------------------- */
+
+.scores {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding-top: 2rem;
+}
+
+.scores h1 {
+    font-size: 90px;
+    margin: 0;
+    line-height: 1;
+}
+
+.scores-intro {
+    font-size: 26px;
+    transform: rotate(-1deg);
+}
+
+/* The name box + Save button. Same hand-drawn card as an option row, but hidden
+   until scores.js adds "has-result" to the page (that is, after a win). */
+.score-entry {
+    display: none;
+    grid-template-columns: auto 280px 160px;
+    align-items: center;
+    gap: 1rem;
+    padding: 4px 24px;
+    font-size: 30px;
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-card);
+    background: repeating-linear-gradient(-45deg, var(--paper) 0 7px, var(--pink) 7px 9px);
+    box-shadow: 3px 3px 0 var(--ink);
+}
+
+#page7.has-result .score-entry {
+    display: grid;
+}
+
+.score-entry label {
+    margin: 0;
+    font-size: 30px;
+}
+
+/* The text box (overrides the Skeleton library's input style). */
+.score-entry input {
+    width: 100%;
+    height: 48px;
+    padding: 0 12px;
+    font-size: 28px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-bar);
+    box-shadow: none;
+}
+
+.score-entry input:focus {
+    border: 3px solid var(--ink);
+    outline: 3px dashed var(--ink);
+    outline-offset: 3px;
+}
+
+/* One line of feedback ("Score saved!"). It keeps its height even when empty,
+   so the page does not jump when a message appears. */
+.score-status {
+    min-height: 1.4em;
+    font-size: 24px;
+}
+
+.score-status.ok {
+    color: darkgreen;
+}
+
+.score-status.error {
+    color: darkred;
+}
+
+/* The leaderboard: a stack of small hand-drawn cards. */
+.score-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 560px;
+    max-width: 90vw;
+    list-style: none;
+}
+
+.score-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 110px;   /* rank | name | points */
+    align-items: center;
+    gap: 1rem;
+    padding: 2px 24px;
+    font-size: 26px;
+    border: 3px solid var(--ink);
+    border-radius: var(--wobbly-card);
+    background: repeating-linear-gradient(-45deg, var(--paper) 0 7px, var(--pink) 7px 9px);
+    box-shadow: 3px 3px 0 var(--ink);
+}
+
+.score-row:nth-child(even) {
+    transform: rotate(.6deg);
+}
+
+.score-row:nth-child(odd) {
+    transform: rotate(-.6deg);
+}
+
+/* The row the player just saved is drawn in gold instead of pink. */
+.score-row.mine {
+    background: repeating-linear-gradient(-45deg, var(--paper) 0 7px, var(--gold) 7px 9px);
+}
+
+.score-rank {
+    text-align: center;
+}
+
+.score-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.score-points {
+    text-align: right;
+}
+
+/* "Loading...", "No scores yet" and error lines inside the list. */
+.score-message {
+    font-size: 24px;
+    text-align: center;
+}
+
+/* Short screens: shrink the page so the whole board still fits. */
+@media (max-height: 900px) {
+    .scores {
+        gap: .5rem;
+        padding-top: 1rem;
+    }
+
+    .scores h1 {
+        font-size: 60px;
+    }
+}

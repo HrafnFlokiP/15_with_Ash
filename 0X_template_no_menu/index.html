@@ -5,38 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web template with p5.js</title>
+
+    <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"
         integrity="sha512-EZLkOqwILORob+p0BXZc+Vm3RgJBOe1Iq/0fiI7r/wJgzOFZMlsqTa29UEl6v6U6gsV4uIpsNZoV32YZqrCRCQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="api_lib/myApiStyles.css">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Cabin+Sketch" />
+
+    <!-- Shared helper code (api_lib folder) -->
     <script src="../api_lib/myClasses.js"></script>
     <script src="../api_lib/api_classes.js"></script>
     <script src="../api_lib/myApi.js"></script>
+
+    <!-- p5.js: provides setup(), select(), random() ... -->
     <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Cabin+Sketch" />
+
+    <!-- Firebase (used for the high scores). Order matters:
+         the two SDK files first, then firebase.js, which starts Firebase and creates `db`. -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="../api_lib/firebase.js"></script>
 </head>
 
 <body>
     <main>
+        <!-- Page 1: main menu. The buttons are drawn onto the canvas by index.js -->
         <div class="page" id="page1">
             <br><br>
             <h1><a style="font-size: 50px; color:black;">The 3 REALLY fun small mini awesome greatest lovy-dovy brightest funny mini</a> Game</h1>
             <div class="drawings">
-                <canvas id="myCanvas" width="400" height="300"></canvas>
+                <canvas id="myCanvas" width="400" height="380"></canvas>
             </div>
         </div>
 
 
+        <!-- Page 2: splash screen. Visible first, hidden by index.js once the game has loaded -->
         <div class="page show" id="page2">
-
             <div class="logo">
-            <img src="./assest/Logo.jpeg" alt="Logo">
+                <img src="./assest/Logo.jpeg" alt="Logo">
             </div>
             <div class="loading_circle"></div>
         </div>
 
 
+        <!-- Page 3: options (difficulty, brightness, sound) - see setupOptions() in index.js -->
         <div class="page" id="page3">
             <div class="options">
                 <h1>Options &#9881;&#65039;</h1>
@@ -72,6 +86,9 @@
                 </div>
             </div>
         </div>
+
+
+        <!-- Page 4: Maze Haze (maze.js) -->
         <div class="page" id="page4">
             <div class="drawings">
                 <div class="maze-wrap">
@@ -79,23 +96,54 @@
                 </div>
             </div>
         </div>
+
+
+        <!-- Page 5: Fill Holes (fillholes.js) -->
         <div class="page" id="page5">
             <div class="drawings">
                 <canvas id="FillHoles" width="1000" height="1000"></canvas>
             </div>
         </div>
+
+
+        <!-- Page 6: placeholder -->
         <div class="page" id="page6">
             <h1>seb shoter</h1>
+        </div>
+
+
+        <!-- Page 7: high scores (scores.js).
+             The name box and Save button are only shown after a win
+             (the "has-result" class is added to this page by scores.js). -->
+        <div class="page" id="page7">
+            <div class="scores">
+                <h1>High Scores &#127942;</h1>
+                <p id="scoreSummary" class="scores-intro"></p>
+
+                <div class="score-entry" id="scoreEntry">
+                    <label for="playerName">Name</label>
+                    <input type="text" id="playerName" maxlength="12" placeholder="your name" autocomplete="off">
+                    <canvas id="saveScoreCanvas" width="160" height="80"></canvas>
+                </div>
+                <p id="scoreStatus" class="score-status"></p>
+
+                <ol id="scoreList" class="score-list">
+                    <li class="score-message">Loading scores...</li>
+                </ol>
+
+                <div class="drawings">
+                    <canvas id="scoreNavCanvas" width="400" height="90"></canvas>
+                </div>
             </div>
         </div>
-        <div class="page" id="page7">
-            <h1>final screen</h1>
-        </div>
     </main>
+
+    <!-- Scripts that need the page above to exist, so they come last -->
     <script src="../node_modules/roughjs/bundled/rough.js"></script>
     <script src="./index.js"></script>
     <script src="./fillholes.js"></script>
     <script src="./maze.js"></script>
+    <script src="./scores.js"></script>
 </body>
 
 </html>

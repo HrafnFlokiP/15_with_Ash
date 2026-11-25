@@ -248,15 +248,18 @@ class Firebase {
     this.ref = db.collection(collection)
   }
 
+  // Returns the Promise from Firestore so callers can wait for / react to the result.
   save(name, points) {
-    this.ref.add({
+    return this.ref.add({
       name: name,
       points: points,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     })
   }
 
-  listen(onUpdate, limit, sort, dir='desc') {
+  // onError (optional) is called if the listener fails, e.g. permission denied.
+  // Returns a function that stops listening.
+  listen(onUpdate, limit, sort, dir='desc', onError) {
     var q = this.ref.orderBy(sort, dir)
     if(limit) q = q.limit(limit)
     return q.onSnapshot(snap => {
@@ -267,7 +270,7 @@ class Firebase {
         list.push(d)
       })
       onUpdate(list)
-    })
+    }, onError)
   }
 
   remove(id) {
