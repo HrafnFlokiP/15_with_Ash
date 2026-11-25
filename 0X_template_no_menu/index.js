@@ -1,4 +1,4 @@
-// =============================================================================
+﻿// =============================================================================
 // index.js - start-up code, settings and the main menu
 // =============================================================================
 //
@@ -102,10 +102,15 @@ function setup() {
     currentPage = '#page2';
     setTimeout(() => shiftPage('#page1'), 250);
 
+    rowOfGames = ['4','5','6']
+
     // Main menu buttons.
     // SketchButton(canvasId, label, hoverColour, onClick, x, y, width, height)
     new SketchButton('myCanvas', 'Start!', 'lightblue', () => {
-        shiftPage('#page4');
+        shiftPage('#page2')
+
+        rowOfGames = shuffle(rowOfGames)
+        shiftPage('#page' + rowOfGames[0])
     }, 75, 50, 250, 110);
 
     new SketchButton('myCanvas', 'Options', 'orange', () => {
