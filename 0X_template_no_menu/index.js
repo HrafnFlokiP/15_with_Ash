@@ -1,8 +1,31 @@
+let gun
+
 window.onload = function () {
     const loadingScreen = document.getElementById("page2");
 
     loadingScreen.classList.add("hidden");
 };
+
+function preload(){
+    gun = loadImage("./assest/Gun.png")
+    sebs = loadImage("./assest/Sebman.png")
+}
+
+function Sebsetup(){
+  dead = false
+  shots = 6
+  shotsH = document.getElementById("shotsH")
+  shotsH.innerHTML = `<h2>${shots} shots</h2>`
+  
+  canvas = createCanvas(canvasWidth(), windowHeight)
+  shoot = new SebShootingBall(160, 320, 80, gun, 6, 12, null, [true, true, true, true])
+  SebOpps = []
+  SebOpps.push(new SebBall(800, 500, 80, sebs, '#10dddd', -2, 0, [true, true, true, true]))
+  SebOpps.push(new SebBall(1000, 300, 80, sebs, '#10dddd', -2, 0, [true, true, true, true]))
+  SebOpps.push(new SebBall(1300, 100, 80, sebs, '#10dddd', -2, 0, [true, true, true, true]))
+  SebOpps.push(new SebBall(1500, 700, 80, sebs, '#10dddd', -2, 0, [true, true, true, true]))
+
+}
 
 const buttonsByCanvas = new WeakMap();
 
@@ -115,9 +138,8 @@ function setup() {
     noCanvas();
     currentPage = '#page2';
     setTimeout(() => shiftPage('#page1'), 250);
-
     new SketchButton('myCanvas', 'Start!', 'lightblue', () => {
-        shiftPage('#page5');
+        shiftPage('#page6');
     }, 75, 50, 250, 110);
     new SketchButton('myCanvas', 'Options', 'orange', () => {
         shiftPage('#page3');
@@ -127,9 +149,7 @@ function setup() {
         shiftPage('#page1');
     }, 125, 50, 150, 90);
 
-    new SketchButton('myCanvas3', 'Go Back!', 'cyan', () => {
-        shiftPage('#page1');
-    }, 125, 50, 150, 90);
 
     setupFillHoles();
+    Sebsetup();
 }
