@@ -90,6 +90,68 @@ class FinishLine extends Zone {
     }
 }
 
+// White instructions with a dark backing stay readable on the white maze.
+class MazeGuide extends CanvasItem {
+    static layer = 4;
+
+    constructor(canvasId, game) {
+        super(canvasId, 'MazeGuide');
+        this.game = game;
+    }
+
+    bindEvents() {}
+
+    paint() {
+        if (!['ready', 'playing'].includes(this.game.state)) return;
+
+        const { context } = this;
+        context.save();
+        context.fillStyle = 'rgba(0, 0, 0, 0.85)';
+
+        if (this.game.state === 'ready') {
+            context.fillRect(24, 24, 510, 104);
+            context.fillStyle = 'white';
+            context.font = '24px "Cabin Sketch", cursive, sans-serif';
+            context.textAlign = 'left';
+            context.textBaseline = 'middle';
+            context.fillText('Start at the orange ball', 44, 46);
+            context.fillText('Move: A / D or Left / Right', 44, 77);
+            context.fillText('Jump: W / Up / Space', 44, 108);
+
+            context.fillStyle = 'rgba(0, 0, 0, 0.85)';
+            context.fillRect(420, 827, 160, 36);
+            context.fillStyle = 'white';
+            context.font = '24px "Cabin Sketch", cursive, sans-serif';
+            context.textAlign = 'center';
+            context.fillText('START HERE', 500, 845);
+
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+            context.beginPath();
+            context.moveTo(500, 868);
+            context.lineTo(500, 908);
+            context.lineTo(490, 897);
+            context.moveTo(500, 908);
+            context.lineTo(510, 897);
+            context.strokeStyle = 'black';
+            context.lineWidth = 8;
+            context.stroke();
+            context.strokeStyle = 'white';
+            context.lineWidth = 3;
+            context.stroke();
+        } else {
+            context.fillRect(24, 24, 220, 56);
+            context.fillStyle = 'white';
+            context.font = '24px "Cabin Sketch", cursive, sans-serif';
+            context.textAlign = 'left';
+            context.textBaseline = 'middle';
+            context.fillText(`Time: ${Math.max(0, MAZE_TIME_LIMIT - this.game.elapsed).toFixed(1)}`, 44, 52);
+        }
+
+        context.restore();
+    }
+}
+
 
 // ---- The game -------------------------------------------------------------------
 
@@ -111,6 +173,7 @@ class MazeHazeGame extends MiniGame {
         this.buildLevel();
         this.buildLabels();
         this.buildPlayer();
+        new MazeGuide(this.canvasId, this);
         this.bindRestartKeys();
         this.setupDifficulty();
     }
@@ -135,12 +198,6 @@ class MazeHazeGame extends MiniGame {
         new TextLabel(id, 'stupid ;)', 60, 790, { size: 30 });
         new TextLabel(id, "F you ';).", 140, 370, { size: 30, color: 'darkred' });
         new TextLabel(id, 'victory.', 800, 400, { size: 30, color: 'darkgreen' });
-
-        // Top-left: the controls before you start, then the countdown
-        new TextLabel(id, () => this.state === 'ready'
-            ? 'Move: A / D or arrows   Jump: W / Up / Space'
-            : `Time: ${Math.max(0, MAZE_TIME_LIMIT - this.elapsed).toFixed(1)}`,
-            40, 50, { size: 24 });
 
         // Middle: the win / game over message
         new TextLabel(id, () => this.message, 500, 250, { size: 44, align: 'center' });
@@ -172,7 +229,7 @@ class MazeHazeGame extends MiniGame {
         const canvas = document.getElementById(this.canvasId);
 
         const applyMask = () => {
-            const radius = MAZE_MASK_RADIUS[getDifficultyName()];
+            const radius = this.state === 'ready' ? null : MAZE_MASK_RADIUS[getDifficultyName()];
             // The canvas may be shown smaller than its 1000px drawing size,
             // so convert canvas pixels to screen pixels first.
             const scale = canvas.clientWidth / canvas.width;
